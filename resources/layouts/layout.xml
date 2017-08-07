@@ -1,5 +1,6 @@
 <layout id="WatchFace">
     <drawable class="Background" /><drawable class="Battery"></drawable>
 	<drawable class="Steps"></drawable>
-	<label id="TimeLabel" x="center" y="center" font="Gfx.FONT_LARGE" justification="Gfx.TEXT_JUSTIFY_CENTER" color="Gfx.COLOR_BLUE" />
+	<drawable class="Move"></drawable>
+	<label id="TimeLabel" x="center" y="center" font="Gfx.FONT_NUMBER_THAI_HOT" justification="Gfx.TEXT_JUSTIFY_CENTER" color="Gfx.COLOR_BLUE" />
 </layout>

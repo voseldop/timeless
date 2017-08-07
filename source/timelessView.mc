@@ -43,18 +43,17 @@ class timelessView extends Ui.WatchFace {
         
         hours = hours % 12;
         
-        dc.setPenWidth(radius/16);
+        dc.setPenWidth(radius/32);
         
-        if (hours > 0) {
-            
+       // if (hours > 0) {            
             dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
-        	dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, (6*radius)/16, Gfx.ARC_CLOCKWISE, 90, 90 - 30 * hours);
-        }
+        	dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, (14*radius)/32, Gfx.ARC_CLOCKWISE, 135 - 30 * hours, 90 - 30 * hours);
+       // }
         
-        if (minutes > 0) {
+       // if (minutes > 0) {
             dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
-        	dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, (7*radius)/16, Gfx.ARC_CLOCKWISE, 90, 90 - (6 * minutes));
-        }
+        	dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, (15*radius)/32, Gfx.ARC_CLOCKWISE, 180 - (6 * minutes), 90 - (6 * minutes));
+       // }
     }
 
     // Called when this View is removed from the screen. Save the
