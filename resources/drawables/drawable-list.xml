@@ -1,0 +1,5 @@
+<drawable-list id="Logo">
+   	<bitmap
+   		filename="Bluetooth_FM_White.png" id="Bluetooth" x="logoX" y="logoY">
+	</bitmap>
+</drawable-list>

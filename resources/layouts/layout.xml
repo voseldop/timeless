@@ -2,5 +2,9 @@
     <drawable class="Background" /><drawable class="Battery"></drawable>
 	<drawable class="Steps"></drawable>
 	<drawable class="Move"></drawable>
-	<label id="TimeLabel" x="center" y="center" font="Gfx.FONT_NUMBER_THAI_HOT" justification="Gfx.TEXT_JUSTIFY_CENTER" color="Gfx.COLOR_BLUE" />
+	<label id="TimeLabel" x="center" y="center" font="Gfx.FONT_SYSTEM_NUMBER_HOT" justification="Gfx.TEXT_JUSTIFY_CENTER" color="Gfx.COLOR_WHITE" /><label
+		id="DateLabel" y="center" x="center"
+		justification="Gfx.TEXT_JUSTIFY_CENTER" color="Gfx.COLOR_WHITE"
+		font="Gfx.FONT_SMALL">
+</label>
 </layout>

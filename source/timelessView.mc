@@ -4,16 +4,25 @@ using Toybox.System as Sys;
 using Toybox.Lang as Lang;
 using Toybox.Application as App;
 using Toybox.ActivityMonitor as Metrics;
+using Toybox.Time.Gregorian as Calendar;
+using Toybox.Time;
+
+var logoX;
+var logoY;
 
 class timelessView extends Ui.WatchFace {
+    var logo;
 
     function initialize() {
         WatchFace.initialize();
+        logo = new Rez.Drawables.Logo();
     }
 
     // Load your resources here
     function onLayout(dc) {
         setLayout(Rez.Layouts.WatchFace(dc));
+        logoX = 10 + dc.getWidth() / 4;
+        logoY = 20 * dc.getWidth() / 32;
     }
 
     // Called when this View is brought to the foreground. Restore
@@ -25,35 +34,49 @@ class timelessView extends Ui.WatchFace {
     // Update the view
     function onUpdate(dc) {
         // Get the current time and format it correctly
+        var radius = dc.getWidth() > dc.getHeight() ? dc.getHeight() : dc.getWidth();
         var timeFormat = "$1$:$2$";
         var clockTime = Sys.getClockTime();
         var hours = clockTime.hour;
         var minutes = clockTime.min;
         var timeString = Lang.format(timeFormat, [hours, minutes.format("%02d")]);
         var stepsString = Metrics.getInfo().steps.format("%d");
-
+        var dateInfo = Calendar.info(Time.now(), Calendar.FORMAT_MEDIUM);
+        var dateString = Lang.format("$1$ $2$", [dateInfo.day, dateInfo.day_of_week]);
+        
         // Update the view
         var timeView = View.findDrawableById("TimeLabel");
-        timeView.setColor(Gfx.COLOR_WHITE);
         timeView.setText(timeString);
         
-        var radius = dc.getWidth() > dc.getHeight() ? dc.getHeight() : dc.getWidth();     
+        // Update the view
+        var dateView = View.findDrawableById("DateLabel");
+        dateView.setText(dateString);
+        dateView.setLocation(16 + radius / 2, 20 * radius/32);
+         
         // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc); 
         
         hours = hours % 12;
         
-        dc.setPenWidth(radius/32);
+        dc.setPenWidth(radius/16);
         
-       // if (hours > 0) {            
-            dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
-        	dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, (14*radius)/32, Gfx.ARC_CLOCKWISE, 135 - 30 * hours, 90 - 30 * hours);
-       // }
+                   
+        dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
+        for (var penWidth = 1; penWidth < radius/16; penWidth = penWidth + 1) {
+            dc.setPenWidth(penWidth);
+            dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, (12*radius)/32, Gfx.ARC_CLOCKWISE,  90 + 5 * (radius/16 - penWidth) - 30 * hours, 90 - 30 * hours);
+        }
+           
+        dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
+        for (var penWidth = 1; penWidth < radius/16; penWidth = penWidth + 1) {
+            dc.setPenWidth(penWidth);
+            dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, (14*radius)/32, Gfx.ARC_CLOCKWISE, 90 + 10 * (radius/16 - penWidth) - (6 * minutes), 90 - (6 * minutes));
+        }
+            
         
-       // if (minutes > 0) {
-            dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
-        	dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, (15*radius)/32, Gfx.ARC_CLOCKWISE, 180 - (6 * minutes), 90 - (6 * minutes));
-       // }
+        if (Sys.getDeviceSettings().phoneConnected) {
+            logo.draw(dc);
+        }
     }
 
     // Called when this View is removed from the screen. Save the
