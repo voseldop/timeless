@@ -22,7 +22,7 @@ class timelessView extends Ui.WatchFace {
     function onLayout(dc) {
         setLayout(Rez.Layouts.WatchFace(dc));
         logoX = 10 + dc.getWidth() / 4;
-        logoY = 20 * dc.getWidth() / 32;
+        logoY = 20 * dc.getHeight() / 32;
     }
 
     // Called when this View is brought to the foreground. Restore
