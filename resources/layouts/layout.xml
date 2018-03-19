@@ -1,10 +1,12 @@
 <layout id="WatchFace">
-    <drawable class="Background" /><drawable class="Battery"></drawable>
+    <drawable class="Background" /><drawable class="Weather"></drawable>
+    
+	<drawable class="Battery"></drawable>
 	<drawable class="Steps"></drawable>
 	<drawable class="Move"></drawable>
 	<label id="TimeLabel" x="center" y="center" font="Gfx.FONT_SYSTEM_NUMBER_HOT" justification="Gfx.TEXT_JUSTIFY_CENTER" color="Gfx.COLOR_WHITE" /><label
-		id="DateLabel" y="center" x="center"
-		justification="Gfx.TEXT_JUSTIFY_CENTER" color="Gfx.COLOR_WHITE"
-		font="Gfx.FONT_SMALL">
+		id="DateLabel" y="center" x="center" color="Gfx.COLOR_WHITE"
+		font="Gfx.FONT_XTINY" justification="Gfx.TEXT_JUSTIFY_CENTER">
 </label>
+
 </layout>

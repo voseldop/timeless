@@ -6,16 +6,13 @@ using Toybox.ActivityMonitor as Monitor;
 class Move extends timelessWidget {
 
     function initialize() {
-        var dictionary = {
-            :identifier => "Move"
-        };
-        
-        bgColor = Gfx.COLOR_BLACK;
         fgColor = Gfx.COLOR_RED;
+        bgColor = Gfx.COLOR_TRANSPARENT;
         sector = 1;
         segmentCount = 5;
+        className = "Move";
 
-        Drawable.initialize(dictionary);
+        timelessWidget.initialize();
     }
 
     function draw(dc) {

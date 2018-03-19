@@ -6,6 +6,7 @@ using Toybox.Application as App;
 using Toybox.ActivityMonitor as Metrics;
 using Toybox.Time.Gregorian as Calendar;
 using Toybox.Time;
+using Toybox.Background;
 
 var logoX;
 var logoY;
@@ -15,12 +16,12 @@ class timelessView extends Ui.WatchFace {
 
     function initialize() {
         WatchFace.initialize();
-        logo = new Rez.Drawables.Logo();
+        logo = new Rez.Drawables.Logo();  
     }
 
     // Load your resources here
     function onLayout(dc) {
-        setLayout(Rez.Layouts.WatchFace(dc));
+        setLayout(Rez.Layouts.WatchFace(dc)); 
         logoX = 10 + dc.getWidth() / 4;
         logoY = 20 * dc.getHeight() / 32;
     }
@@ -29,6 +30,13 @@ class timelessView extends Ui.WatchFace {
     // the state of this View and prepare it to be shown. This includes
     // loading resources into memory.
     function onShow() {
+    }
+    
+    function onWeatherData(temperature, weather) {
+        Sys.println("Data recieved");
+   
+    		var tempView = View.findDrawableById("TemperatureLabel");
+    		tempView.setText(temperature);
     }
 
     // Update the view
@@ -43,23 +51,25 @@ class timelessView extends Ui.WatchFace {
         var stepsString = Metrics.getInfo().steps.format("%d");
         var dateInfo = Calendar.info(Time.now(), Calendar.FORMAT_MEDIUM);
         var dateString = Lang.format("$1$ $2$", [dateInfo.day, dateInfo.day_of_week]);
+        var temperature = App.getApp().getProperty("temperature");
+        
+        if (temperature == null) {
+            temperature = "?°C";
+        }
         
         // Update the view
         var timeView = View.findDrawableById("TimeLabel");
-        timeView.setText(timeString);
+        timeView.setText(timeString);        
         
         // Update the view
         var dateView = View.findDrawableById("DateLabel");
-        dateView.setText(dateString);
-        dateView.setLocation(16 + radius / 2, 20 * radius/32);
-         
+        dateView.setText(dateString + "  " + temperature);
+        dateView.setLocation(timeView.locX, dc.getHeight()/2 - 11*radius/32 + Gfx.getFontHeight(Gfx.FONT_TINY) + Gfx.getFontHeight(Gfx.FONT_XTINY) / 4 ); // 20 * radius/32 - 20);
+       
         // Call the parent onUpdate function to redraw the layout
-        View.onUpdate(dc); 
-        
-        hours = hours % 12;
-        
-        dc.setPenWidth(radius/16);
-        
+        View.onUpdate(dc);         
+        hours = hours % 12;        
+        dc.setPenWidth(radius/16);        
                    
         dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
         for (var penWidth = 1; penWidth < radius/16; penWidth = penWidth + 1) {

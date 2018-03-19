@@ -5,15 +5,13 @@ using Toybox.Graphics as Gfx;
 class Battery extends timelessWidget {
 
     function initialize() {
-        var dictionary = {
-            :identifier => "Battery"
-        };
         
         bgColor = Gfx.COLOR_RED;
         fgColor = Gfx.COLOR_GREEN;
         sector = 3;
-
-        Drawable.initialize(dictionary);
+        
+        className = "Battery";
+        timelessWidget.initialize();
     }
 
     function draw(dc) {

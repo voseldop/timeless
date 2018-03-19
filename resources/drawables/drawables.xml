@@ -1,3 +1,12 @@
 <drawables>
     <bitmap id="LauncherIcon" filename="launcher_icon.png" />
+    <bitmap id="overcastClouds" filename="overcastClouds.png"/>
+    <bitmap id="brokenClouds" filename="brokenClouds.png"/>
+    <bitmap id="fewClouds" filename="fewClouds.png"/>
+    <bitmap id="showerRain" filename="showerRain.png"/>
+    <bitmap id="rain" filename="rain.png"/>
+    <bitmap id="snow" filename="snow.png"/>
+    <bitmap id="sun" filename="sunny.png"/>
+    <bitmap id="thunderstorm" filename="thunderstorm.png"/>
+    <bitmap id="fog" filename="fog.png"/>
 </drawables>
