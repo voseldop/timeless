@@ -55,6 +55,10 @@ class timelessView extends Ui.WatchFace {
         
         if (temperature == null) {
             temperature = "?°C";
+        } else if (temperature instanceof Float || temperature instanceof Double) {
+            temperature = temperature.format("%.1f")+"°C";
+        } else {
+            temperature = temperature.toString() + "°C";
         }
         
         // Update the view
@@ -63,7 +67,7 @@ class timelessView extends Ui.WatchFace {
         
         // Update the view
         var dateView = View.findDrawableById("DateLabel");
-        dateView.setText(dateString + "  " + temperature);
+        dateView.setText(dateString + " " + temperature);
         dateView.setLocation(timeView.locX, dc.getHeight()/2 - 11*radius/32 + Gfx.getFontHeight(Gfx.FONT_TINY) + Gfx.getFontHeight(Gfx.FONT_XTINY) / 4 ); // 20 * radius/32 - 20);
        
         // Call the parent onUpdate function to redraw the layout
