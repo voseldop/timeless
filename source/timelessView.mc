@@ -12,6 +12,10 @@ var logoX;
 var logoY;
 
 class timelessView extends Ui.WatchFace {
+    
+    const METRIC_TEMPERATURE_TMPL = "$1$°C";
+    const IMPERIAL_TEMPERATURE_TMPL = "$1$°F";
+    
     var logo;
 
     function initialize() {
@@ -33,10 +37,15 @@ class timelessView extends Ui.WatchFace {
     }
     
     function onWeatherData(temperature, weather) {
-        Sys.println("Data recieved");
-   
-    		var tempView = View.findDrawableById("TemperatureLabel");
-    		tempView.setText(temperature);
+		var tempView = View.findDrawableById("TemperatureLabel");
+		tempView.setText(temperature);
+    }
+    
+    function drawArrow(dc, radius, rpos, lpos, width) {    
+        for (var penWidth = 1; penWidth < width * radius/32; penWidth = penWidth + 1) {
+            dc.setPenWidth(penWidth);
+            dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, (rpos*radius)/32, Gfx.ARC_CLOCKWISE,  90 + 5 * width * (radius/16 - penWidth) - 6 * lpos, 90 - 6 * lpos);
+        }
     }
 
     // Update the view
@@ -51,46 +60,60 @@ class timelessView extends Ui.WatchFace {
         var stepsString = Metrics.getInfo().steps.format("%d");
         var dateInfo = Calendar.info(Time.now(), Calendar.FORMAT_MEDIUM);
         var dateString = Lang.format("$1$ $2$", [dateInfo.day, dateInfo.day_of_week]);
-        var temperature = App.getApp().getProperty("temperature");
+        var temperature = formatTemperature(App.getApp().getProperty("temperature"));
         
-        if (temperature == null) {
-            temperature = "?°C";
-        } else if (temperature instanceof Float || temperature instanceof Double) {
-            temperature = temperature.format("%.1f")+"°C";
-        } else {
-            temperature = temperature.toString() + "°C";
-        }
-        
-        // Update the view
+        // Update time
         var timeView = View.findDrawableById("TimeLabel");
         timeView.setText(timeString);        
         
-        // Update the view
+        // Update date
         var dateView = View.findDrawableById("DateLabel");
-        dateView.setText(dateString + " " + temperature);
+        if (Toybox.System has :ServiceDelegate) {  
+        	dateView.setText(dateString + " " + temperature);
+        } else {
+        	dateView.setText(dateString);
+        }
         dateView.setLocation(timeView.locX, dc.getHeight()/2 - 11*radius/32 + Gfx.getFontHeight(Gfx.FONT_TINY) + Gfx.getFontHeight(Gfx.FONT_XTINY) / 4 ); // 20 * radius/32 - 20);
        
         // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc);         
         hours = hours % 12;        
         dc.setPenWidth(radius/16);        
-                   
-        dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
-        for (var penWidth = 1; penWidth < radius/16; penWidth = penWidth + 1) {
-            dc.setPenWidth(penWidth);
-            dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, (12*radius)/32, Gfx.ARC_CLOCKWISE,  90 + 5 * (radius/16 - penWidth) - 30 * hours, 90 - 30 * hours);
+               
+        if (Toybox.System has :ServiceDelegate) {   
+            dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);            
+            drawArrow(dc, radius, 15, hours *5, 1);      
+	           
+	        dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
+	        drawArrow(dc, radius, 16, minutes, 1);
+        } else {
+            dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT); 
+            drawArrow(dc, radius, 13, hours *5, 2);
+	           
+	        dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
+	        drawArrow(dc, radius, 15, minutes, 2);
         }
-           
-        dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
-        for (var penWidth = 1; penWidth < radius/16; penWidth = penWidth + 1) {
-            dc.setPenWidth(penWidth);
-            dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, (14*radius)/32, Gfx.ARC_CLOCKWISE, 90 + 10 * (radius/16 - penWidth) - (6 * minutes), 90 - (6 * minutes));
-        }
-            
         
         if (Sys.getDeviceSettings().phoneConnected) {
             logo.draw(dc);
         }
+    }
+    
+    function formatDecimal(value) {
+        if (value instanceof Float || value instanceof Double) {
+            return value.format("%.0f");
+        } else {
+            return value.toString();
+        }
+    }
+    
+    function formatTemperature(value) {
+        if (value == null) {
+            return "?";                        
+        } 
+        
+        return Lang.format(Sys.getDeviceSettings().temperatureUnits == Sys.UNIT_METRIC ? METRIC_TEMPERATURE_TMPL : IMPERIAL_TEMPERATURE_TMPL, 
+                           [formatDecimal(value)]);
     }
 
     // Called when this View is removed from the screen. Save the

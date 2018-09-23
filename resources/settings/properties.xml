@@ -2,4 +2,5 @@
     <property id="BackgroundColor" type="number">0x000000</property>
     <property id="WeatherUpdatePeriod" type="number">3600</property>
     <property id="WeatherLocation" type="string">Saint Petersburg</property>
+    <property id="Units" type="number">0</property>
 </properties>

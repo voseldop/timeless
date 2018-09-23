@@ -14,5 +14,10 @@
         <settingConfig type="numeric">
         </settingConfig>
     </setting>
+    <setting propertyKey="@Properties.Units" title="@Strings.MeasurementUnits">
+    	<settingConfig type="list">
+    		<listEntry value="0">@Strings.Metric</listEntry>
+    		<listEntry value="1">@Strings.Imperial</listEntry>
+    	</settingConfig></setting>
 
 </settings>

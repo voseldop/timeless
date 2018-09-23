@@ -9,7 +9,11 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
     // a service and handle the response with a callback function
     // within this delegate.
     
-    const URI = "https://api.openweathermap.org/data/2.5/weather?q=$1$&appid=8c401201165447badd5d8cbf631492a3&units=$2$";
+    const CURRENT_WEATHER_URI = "https://api.openweathermap.org/data/2.5/weather?q=$1$&appid=8c401201165447badd5d8cbf631492a3&units=$2$";
+    const FORECAST_WEATHER_URI = "https://api.openweathermap.org/data/2.5/forecast?q=$1$&appid=8c401201165447badd5d8cbf631492a3&units=$2$&cnt=4";
+    
+    var currentWeather;
+    var forecastWeather;
     
     var weatherCodes;
     function initialize(){
@@ -38,41 +42,105 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
     }
     
     function onTemporalEvent() {
-        var url=Lang.format(URI, [Communications.encodeURL(App.getApp().getProperty("WeatherLocation")), "metric"]);  
+        currentWeather = null;
+        forecastWeather = null;
+    	makeCurrentWeatherRequest();
+    	makeForecastWeatherRequest();
+    }
+    
+    function getTemperatureUnits() {
+        return System.getDeviceSettings().temperatureUnits == System.UNIT_METRIC ? "metric" : "imperial";
+    }
+    
+    function makeCurrentWeatherRequest() {
+        var url=Lang.format(CURRENT_WEATHER_URI, [Communications.encodeURL(App.getApp().getProperty("WeatherLocation")), getTemperatureUnits()]);  
         var headers = {"Accept" => "application/json"};
         var params = {};
 	            
 	    var options = {
-            		:headers => headers,
+            	:headers => headers,
                 :method => Communications.HTTP_REQUEST_METHOD_GET,
                 :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
                 :params => params
             };
            
-        System.println("Request "+ url);       
+        System.println("Current weather request " + url);       
         
         Communications.makeWebRequest(
             url,
             params, options,
-            method(:responseCallback)
+            method(:currentWeatherCallback)
         );
     }
 
-    function responseCallback(responseCode, data) {
+    function currentWeatherCallback(responseCode, data) {
         // Do stuff with the response data here and send the data
         // payload back to the app that originated the background
         // process.
         if (responseCode == 200) {
-        	    var temperature = data.get("main").get("temp");
+        	var temperature = data.get("main").get("temp");
 	        var weatherCode = data.get("weather")[0].get("icon");
 	        var timeFormat = "$1$:$2$";
 	        var clockTime = System.getClockTime();
 	        var hours = clockTime.hour;
 	        var minutes = clockTime.min;
 	        var timeString = Lang.format(timeFormat, [hours, minutes.format("%02d")]);
-        		Background.exit({ "temperature" => temperature,
-        		                  "weatherCode" => weatherCodes.get(weatherCode),
-        		                  "timestamp" => timeString });
+	        currentWeather = { "temperature" => temperature,
+    		                  "weatherCode" => weatherCodes.get(weatherCode),
+    		                  "timestamp" => timeString };
+    		if (forecastWeather) {
+    		   Background.exit({ "current" => currentWeather,
+    		                     "forecast" => forecastWeather});
+    		}
+        } else {
+            Background.exit(responseCode);
+        }
+        
+    }
+    
+    function makeForecastWeatherRequest() {
+        var url=Lang.format(FORECAST_WEATHER_URI, [Communications.encodeURL(App.getApp().getProperty("WeatherLocation")), getTemperatureUnits()]);  
+        var headers = {"Accept" => "application/json"};
+        var params = {};
+	            
+	    var options = {
+            	:headers => headers,
+                :method => Communications.HTTP_REQUEST_METHOD_GET,
+                :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
+                :params => params
+            };
+           
+        System.println("Forecast request "+ url);       
+        
+        Communications.makeWebRequest(
+            url,
+            params, options,
+            method(:forecastWeatherCallback)
+        );
+    }
+    
+    function forecastWeatherCallback(responseCode, data) {
+        // Do stuff with the response data here and send the data
+        // payload back to the app that originated the background
+        // process.
+        System.println("Forecast response "+ data); 
+        if (responseCode == 200) {
+           var temperature = new [4];
+           var conditions = new [4];
+           var time = new [4];
+           for (var i = 0; i<4; i+=1) {
+             temperature[i] = data.get("list")[i].get("main").get("temp");
+             conditions[i] = weatherCodes.get(data.get("list")[i].get("weather")[0].get("icon"));
+             time[i] = data.get("list")[i].get("dt");
+           }
+           forecastWeather = { "forecastTemp" => temperature,
+        		               "forecastWeather" => conditions,
+        		               "forecastTime" => time };
+
+           if (currentWeather) {
+    		   Background.exit({ "current" => currentWeather,
+    		                     "forecast" => forecastWeather});
+    	   }       
         } else {
             Background.exit(responseCode);
         }

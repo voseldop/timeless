@@ -2,8 +2,11 @@
 
     <string id="AppName">timeless</string>
 
-    <string id="BackgroundColorTitle">Background Color</string>
-    <string id="LocationTitle">Location</string>
+    <string id="BackgroundColorTitle">Background Color used when no weather info available</string>
+    <string id="LocationTitle">Location (confirm spelling on openeweathermap.org)</string>
     <string id="WeatherUpdateTitle">Weather Update Period in seconds</string>
+    <string id="MeasurementUnits">Measurement Units</string>
+    <string id="Metric">Metric</string>
+    <string id="Imperial">Imperial</string>
 
 </strings>

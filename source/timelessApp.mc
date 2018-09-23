@@ -26,26 +26,30 @@ class timelessApp extends App.AppBase {
 	    		   Sys.println("Weather update is disabled");
 	    		   return;
 	    		}
+	    		
+	    		if (App.getApp().getProperty("temperature") == null) {
+	    		   periodProperty = 300;
+	    		}
           
-			var lastTime = Background.getLastTemporalEventTime();
-			if (lastTime == null) {			   
-			    Sys.println("Schedule request now");	   
-			    Background.registerForTemporalEvent(Time.now()); 			    
-			} else {
-			    var duration = new Time.Duration(periodProperty);
-			    lastTime = lastTime.add(duration);
-			    var today = Time.Gregorian.info(lastTime, Time.FORMAT_MEDIUM);
-			    var dateString = Lang.format(
-										    "$1$:$2$:$3$",
-										    [
-										        today.hour,
-										        today.min,
-										        today.sec
-										    ]
-										);
-			    Sys.println("Schedule request in "+ dateString);
-			    Background.registerForTemporalEvent(lastTime);
-			}
+				var lastTime = Background.getLastTemporalEventTime();
+				if (lastTime == null) {			   
+				    Sys.println("Schedule request now");	   
+				    Background.registerForTemporalEvent(Time.now()); 			    
+				} else {
+				    var duration = new Time.Duration(periodProperty);
+				    lastTime = lastTime.add(duration);
+				    var today = Time.Gregorian.info(lastTime, Time.FORMAT_MEDIUM);
+				    var dateString = Lang.format(
+											    "$1$:$2$:$3$",
+											    [
+											        today.hour,
+											        today.min,
+											        today.sec
+											    ]
+											);
+					Sys.println("requestWeatherUpdate "+dateString);						
+				    Background.registerForTemporalEvent(lastTime);
+				}
 	    	} else {
 	    		Sys.println("****background not available on this device****");
 	    	} 
@@ -53,7 +57,6 @@ class timelessApp extends App.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() {
-    
         requestWeatherUpdate(0);
 	    	
         return [ new timelessView() ];
@@ -69,21 +72,29 @@ class timelessApp extends App.AppBase {
         return [new timelessWeatherDelegate()];
     }
     
+    function synchronizeData(name, data) {
+        var value = data.get(name);	    
+        Sys.println("Synchronize " + name + " = " + value );    
+        if (value != null) {
+        	App.getApp().setProperty(name, value);
+        }
+    }
+    
     (:minSdk("2.3.0"))
     function onBackgroundData(data) {
+    	var timeFormat = "$1$:$2$";
+        var clockTime = Sys.getClockTime();
+        var hours = clockTime.hour;
+        var minutes = clockTime.min;
+        var timeString = Lang.format(timeFormat, [hours, minutes.format("%02d")]);
         
         if (data instanceof Dictionary) {
-	        Sys.println("onBackgroundData "+ data);
-	        var temperature = data.get("temperature");
-	        var timeFormat = "$1$:$2$";
-	        var clockTime = Sys.getClockTime();
-	        var hours = clockTime.hour;
-	        var minutes = clockTime.min;
-	        var timeString = Lang.format(timeFormat, [hours, minutes.format("%02d")]);
-	        var str = Lang.format("$1$°C", [temperature]) + "\n\n\n" + timeString;
-	        
-	        App.getApp().setProperty("temperature", temperature);
-	        App.getApp().setProperty("weatherCode", data.get("weatherCode"));
+	        synchronizeData("temperature", data.get("current"));
+			synchronizeData("weatherCode", data.get("current")); 
+			synchronizeData("forecastTemp", data.get("forecast"));   
+			synchronizeData("forecastWeather", data.get("forecast"));  
+			synchronizeData("forecastTime", data.get("forecast"));         
+	        synchronizeData("timestap", data.get("current"));
 	        
 	        Ui.requestUpdate();
 	        requestWeatherUpdate(0);
