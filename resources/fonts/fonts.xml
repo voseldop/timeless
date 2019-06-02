@@ -1,0 +1,4 @@
+<resources>
+<font id="id_xtiny" filename="xtiny.fnt" filter="0123456789:"/>
+<font id="id_bluetooth" filename="bluetooth.fnt" antialias="true"/>
+</resources>

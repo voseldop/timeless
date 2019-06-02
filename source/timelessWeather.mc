@@ -2,12 +2,13 @@ using Toybox.WatchUi as Ui;
 using Toybox.Application as App;
 using Toybox.Graphics as Gfx;
 using Toybox.System as Sys;
+using Toybox.Time.Gregorian;
 
 class Weather extends Ui.Drawable {
     const METRIC_TEMPERATURE_TMPL = "$1$°";
     const IMPERIAL_TEMPERATURE_TMPL = "$1$°";
     
-    var icons = {
+    const icons = {
           "Snow" => Rez.Drawables.snow,
           "Sun"  => Rez.Drawables.sun,          
           "Few Clouds" => Rez.Drawables.fewClouds,
@@ -18,6 +19,8 @@ class Weather extends Ui.Drawable {
           "Thunderstorm" => Rez.Drawables.thunderstorm,
           "Fog" => Rez.Drawables.fog
         };
+        
+    const xtiny = Ui.loadResource(Rez.Fonts.id_xtiny);    
         
 	function initialize() {
         var dictionary = {
@@ -85,7 +88,8 @@ class Weather extends Ui.Drawable {
 	    }
 	    
 	    dc.drawBitmap(iconX, iconY, image);	    
-	    dc.drawText(textPosX, textPosY, Gfx.FONT_XTINY, text, Gfx.TEXT_JUSTIFY_CENTER);	    
+	    dc.drawText(textPosX, textPosY, Gfx.FONT_XTINY, text, Gfx.TEXT_JUSTIFY_CENTER);	
+	        
 	    image = null;
     }
     
@@ -96,16 +100,31 @@ class Weather extends Ui.Drawable {
 		   var forecastTime = App.getApp().getProperty("forecastTime");
 		   var forecastTemp = App.getApp().getProperty("forecastTemp");
 		   var forecastWeather = App.getApp().getProperty("forecastWeather");
+		   var forecastTimestamp = App.getApp().getProperty("forecastTimestamp");
 		   
 		   if (forecastTime != null && forecastTemp != null && forecastWeather != null) {  
 			   for (var segment = 0; segment < 4; segment +=1) {	            
 		            var time = new Time.Moment(forecastTime[segment]);
-		            var hour = (Time.Gregorian.info(time, Time.FORMAT_MEDIUM).hour % 12) / 3;
+		            var hour = Time.Gregorian.info(time, Time.FORMAT_MEDIUM).hour;
 		            var weather = forecastWeather[segment];
-		            var temperature = forecastTemp[segment];
+		            var temperature = forecastTemp[segment];		            
+		            var current = Sys.getClockTime().hour;
 		            
-		            Sys.println("Draw weather " + weather + " temperature " + temperature + " at " + Time.Gregorian.info(time, Time.FORMAT_MEDIUM).hour);
-				    drawForecastSegment(temperature, weather, hour, dc);
+		            Sys.println("Draw weather " + weather + " temperature " + temperature + " at " + hour + " current " + current);
+				    drawForecastSegment(temperature, weather, (hour % 12) / 3, dc);
+
+		       }
+		       
+		       if (forecastTimestamp != null) {
+		          var timeStamp = Gregorian.info(new Time.Moment(forecastTimestamp.toNumber()), Time.FORMAT_MEDIUM);
+		          var timeString = Lang.format(
+				    "$1$:$2$",
+				    [
+				        timeStamp.hour,
+				        timeStamp.min.format("%02d")
+				    ]);
+				  
+				  dc.drawText(dc.getWidth()/2, dc.getHeight() - Gfx.getFontHeight(xtiny) * 2, xtiny, timeString, Gfx.TEXT_JUSTIFY_CENTER);		
 		       }
 	       }
        }

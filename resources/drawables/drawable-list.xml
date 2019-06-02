@@ -1,5 +1,5 @@
 <drawable-list id="Logo">
    	<bitmap
-   		filename="Bluetooth_FM_White.png" id="Bluetooth" x="logoX" y="logoY">
+   		filename="Bluetooth_FM_White.png" id="Bluetooth" x="0" y="0">
 	</bitmap>
 </drawable-list>

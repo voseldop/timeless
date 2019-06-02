@@ -17,6 +17,7 @@ class timelessWidget extends Ui.Drawable {
         2 => :drawSector2,
         3 => :drawSector3
     };
+    var penWidth = 5;
     
     function initialize() {
         var dictionary = {
@@ -28,10 +29,14 @@ class timelessWidget extends Ui.Drawable {
     
     function drawSector(dc) {
         var radius = dc.getWidth() > dc.getHeight() ? dc.getHeight() : dc.getWidth();
+        drawSectorRadius(dc, 11*radius/32, level, segmentCount, penWidth);
+    }
+    
+    function drawSectorRadius(dc, radius, value, segments, width) {
         
-        dc.setPenWidth(radius/32);
-        for (var i=0; i<segmentCount; i++) {
-            if (level > 100 * (segmentCount - i - 1)/segmentCount) {
+        dc.setPenWidth(width);
+        for (var i=0; i<segments; i++) {
+            if (value > 100 * (segments - i - 1)/segments) {
                 dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
             } else {
                 dc.setColor(bgColor, Gfx.COLOR_TRANSPARENT);
@@ -39,17 +44,17 @@ class timelessWidget extends Ui.Drawable {
             if (sector < 2) {        
             dc.drawArc(dc.getWidth()/2, 
                        dc.getHeight()/2, 
-                       10*radius/32, 
+                       radius, 
                        Gfx.ARC_COUNTER_CLOCKWISE, 
-                       49 + (132 - 48)*i/segmentCount + sector * 90, 
-                       47 + (132 - 48)*(i+1)/segmentCount + sector * 90 );
+                       49 + (132 - 48)*i/segments + sector * 90, 
+                       47 + (132 - 48)*(i+1)/segments + sector * 90 );
             } else {
             dc.drawArc(dc.getWidth()/2, 
                        dc.getHeight()/2, 
-                       10*radius/32, 
+                       radius, 
                        Gfx.ARC_COUNTER_CLOCKWISE,  
-                       49 + (132 - 48)*(segmentCount - i - 1)/segmentCount + sector * 90,
-                       47 + (132 - 48)*(segmentCount - i)/segmentCount + sector * 90 );
+                       49 + (132 - 48)*(segments - i - 1)/segments + sector * 90,
+                       47 + (132 - 48)*(segments - i)/segments + sector * 90 );
             }
             
         }

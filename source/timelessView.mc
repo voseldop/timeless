@@ -8,15 +8,13 @@ using Toybox.Time.Gregorian as Calendar;
 using Toybox.Time;
 using Toybox.Background;
 
-var logoX;
-var logoY;
-
 class timelessView extends Ui.WatchFace {
     
     const METRIC_TEMPERATURE_TMPL = "$1$°C";
     const IMPERIAL_TEMPERATURE_TMPL = "$1$°F";
     
     var logo;
+    const connectivity = Ui.loadResource(Rez.Fonts.id_xtiny);
 
     function initialize() {
         WatchFace.initialize();
@@ -26,8 +24,6 @@ class timelessView extends Ui.WatchFace {
     // Load your resources here
     function onLayout(dc) {
         setLayout(Rez.Layouts.WatchFace(dc)); 
-        logoX = 10 + dc.getWidth() / 4;
-        logoY = 20 * dc.getHeight() / 32;
     }
 
     // Called when this View is brought to the foreground. Restore
@@ -60,7 +56,7 @@ class timelessView extends Ui.WatchFace {
         var stepsString = Metrics.getInfo().steps.format("%d");
         var dateInfo = Calendar.info(Time.now(), Calendar.FORMAT_MEDIUM);
         var dateString = Lang.format("$1$ $2$", [dateInfo.day, dateInfo.day_of_week]);
-        var temperature = formatTemperature(App.getApp().getProperty("temperature"));
+        var location = App.getApp().getProperty("currentLocation");
         
         // Update time
         var timeView = View.findDrawableById("TimeLabel");
@@ -68,35 +64,40 @@ class timelessView extends Ui.WatchFace {
         
         // Update date
         var dateView = View.findDrawableById("DateLabel");
-        if (Toybox.System has :ServiceDelegate) {  
-        	dateView.setText(dateString + " " + temperature);
-        } else {
-        	dateView.setText(dateString);
-        }
+        dateView.setText(dateString);
         dateView.setLocation(timeView.locX, dc.getHeight()/2 - 11*radius/32 + Gfx.getFontHeight(Gfx.FONT_TINY) + Gfx.getFontHeight(Gfx.FONT_XTINY) / 4 ); // 20 * radius/32 - 20);
        
+        var locationView = View.findDrawableById("LocationLabel");
+        
+        if (location != null) {
+         if (location.length() > 10) {
+           location = Lang.format("$1$...", [location.substring(0, 7)]);
+         }		         
+       } else {
+         location = "";
+       }
+       
+       locationView.setText(location);
+       locationView.setLocation(locationView.locX, timeView.locY + Gfx.getFontHeight(Gfx.FONT_SYSTEM_NUMBER_HOT));
+       
+       if (Toybox.System has :ServiceDelegate) {
+	       var weatherView = View.findDrawableById("WeatherLabel");
+	       var weatherCode = App.getApp().getProperty("weatherCode");
+	       var temperature = formatTemperature(App.getApp().getProperty("temperature"));
+	       weatherView.setText(temperature);
+	       weatherView.setLocation(weatherView.locX, timeView.locY + Gfx.getFontHeight(Gfx.FONT_SYSTEM_NUMBER_HOT) + Gfx.getFontHeight(Gfx.FONT_XTINY));
+       }
+       
+       var connectivityView = View.findDrawableById("ConnectivityLabel");
+        if (Sys.getDeviceSettings().phoneConnected) {
+           connectivityView.setText(" ");
+        } else {
+           connectivityView.setText("");
+        }       
+        connectivityView.setLocation(timeView.locX - dc.getTextDimensions(timeString, Gfx.FONT_SYSTEM_NUMBER_HOT)[0] / 2 - dc.getTextDimensions(" ", connectivity)[0] * 2, timeView.locY);
+        
         // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc);         
-        hours = hours % 12;        
-        dc.setPenWidth(radius/16);        
-               
-        if (Toybox.System has :ServiceDelegate) {   
-            dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);            
-            drawArrow(dc, radius, 15, hours *5, 1);      
-	           
-	        dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
-	        drawArrow(dc, radius, 16, minutes, 1);
-        } else {
-            dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT); 
-            drawArrow(dc, radius, 13, hours *5, 2);
-	           
-	        dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
-	        drawArrow(dc, radius, 15, minutes, 2);
-        }
-        
-        if (Sys.getDeviceSettings().phoneConnected) {
-            logo.draw(dc);
-        }
     }
     
     function formatDecimal(value) {
@@ -124,6 +125,23 @@ class timelessView extends Ui.WatchFace {
 
     // The user has just looked at their watch. Timers and animations may be started here.
     function onExitSleep() {
+       var duration = null;
+       var forecastTimestamp = App.getApp().getProperty("forecastTimestamp");
+       var period = App.getApp().getProperty("WeatherUpdatePeriod");
+       if (period == null) {
+          period = 1800;
+       }
+
+       if (forecastTimestamp != null) {
+			duration = Time.now().subtract(new Time.Moment(forecastTimestamp.toNumber()));    
+			System.println(duration.value()); 		
+       	}
+   	   
+   		if (duration == null || duration.value() > period) {
+   		  System.println("Request update");       		
+   		  App.getApp().requestWeatherUpdate(0);
+   		}
+       	
     }
 
     // Terminate any active timers and prepare for slow updates.

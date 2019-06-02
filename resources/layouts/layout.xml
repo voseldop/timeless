@@ -1,11 +1,16 @@
-<layout id="WatchFace">
-    <drawable class="Background" />
-    <drawable class="Weather"></drawable>
-	<drawable class="Battery"></drawable>
-	<drawable class="Steps"></drawable>
-	<drawable class="Move"></drawable>
-	<label id="TimeLabel" x="center" y="center" font="Gfx.FONT_SYSTEM_NUMBER_HOT" justification="Gfx.TEXT_JUSTIFY_CENTER" color="Gfx.COLOR_WHITE" /><label
-		id="DateLabel" y="center" x="center" color="Gfx.COLOR_WHITE"
-		font="Gfx.FONT_XTINY" justification="Gfx.TEXT_JUSTIFY_CENTER">
-    </label>
-</layout>
+<resources>
+	<layout id="WatchFace">
+	    <drawable class="Background" />
+	    <drawable class="Arrows" />
+	    <drawable class="Weather"></drawable>
+	    <drawable class="Move"></drawable>
+		<drawable class="Battery"></drawable>
+		<drawable class="Steps"></drawable>		
+		<label id="TimeLabel" x="center" y="center" font="Gfx.FONT_SYSTEM_NUMBER_HOT" justification="Gfx.TEXT_JUSTIFY_CENTER" color="Gfx.COLOR_WHITE" />
+		<label id="DateLabel" y="center" x="center" color="Gfx.COLOR_WHITE" font="Gfx.FONT_XTINY" justification="Gfx.TEXT_JUSTIFY_CENTER" />
+		<label id="LocationLabel" y="center" x="center" color="Gfx.COLOR_WHITE" font="Gfx.FONT_XTINY" justification="Gfx.TEXT_JUSTIFY_CENTER" />
+		<label id="WeatherLabel" y="center" x="center" color="Gfx.COLOR_WHITE" font="Gfx.FONT_XTINY" justification="Gfx.TEXT_JUSTIFY_CENTER" />
+		<label id="UpdateTimeLabel" y="center" x="center" color="Gfx.COLOR_WHITE" font="@Fonts.id_xtiny" justification="Gfx.TEXT_JUSTIFY_CENTER" />
+		<label id="ConnectivityLabel" y="center" x="center" color="Gfx.COLOR_WHITE" font="@Fonts.id_bluetooth" justification="Gfx.TEXT_JUSTIFY_CENTER" />
+	</layout>
+</resources>

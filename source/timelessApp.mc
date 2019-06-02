@@ -22,7 +22,7 @@ class timelessApp extends App.AppBase {
     function requestWeatherUpdate(period) {
     		if(Toybox.System has :ServiceDelegate) {
     		    var periodProperty = period == 0 ? App.getApp().getProperty("WeatherUpdatePeriod") : period;
-    		    if (periodProperty== null || periodProperty <= 0) {
+    		    if (periodProperty == null || periodProperty <= 0) {
 	    		   Sys.println("Weather update is disabled");
 	    		   return;
 	    		}
@@ -47,8 +47,13 @@ class timelessApp extends App.AppBase {
 											        today.sec
 											    ]
 											);
-					Sys.println("requestWeatherUpdate "+dateString);						
+					Sys.println("requestWeatherUpdate " + dateString);						
 				    Background.registerForTemporalEvent(lastTime);
+				}
+				
+				if (Toybox.Background has :getActivityCompletedEventRegistered && !Background.getActivityCompletedEventRegistered()) {
+				    Sys.println("Monitor activities");
+				    Background.registerForActivityCompletedEvent();
 				}
 	    	} else {
 	    		Sys.println("****background not available on this device****");
@@ -94,7 +99,11 @@ class timelessApp extends App.AppBase {
 			synchronizeData("forecastTemp", data.get("forecast"));   
 			synchronizeData("forecastWeather", data.get("forecast"));  
 			synchronizeData("forecastTime", data.get("forecast"));         
-	        synchronizeData("timestap", data.get("current"));
+	        synchronizeData("forecastTimestamp", data.get("forecast"));
+	        synchronizeData("currentTimestap", data.get("current"));
+	        synchronizeData("currentLocation", data.get("current"));
+	        synchronizeData("lattitude", data.get("position"));
+	        synchronizeData("longitude", data.get("position"));
 	        
 	        Ui.requestUpdate();
 	        requestWeatherUpdate(0);
