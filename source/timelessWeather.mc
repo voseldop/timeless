@@ -2,34 +2,34 @@ using Toybox.WatchUi as Ui;
 using Toybox.Application as App;
 using Toybox.Graphics as Gfx;
 using Toybox.System as Sys;
-using Toybox.Time.Gregorian;
 
 class Weather extends Ui.Drawable {
     const METRIC_TEMPERATURE_TMPL = "$1$°";
     const IMPERIAL_TEMPERATURE_TMPL = "$1$°";
-    
+
     const icons = {
           "Snow" => Rez.Drawables.snow,
-          "Sun"  => Rez.Drawables.sun,          
+          "Sun"  => Rez.Drawables.sun,
           "Few Clouds" => Rez.Drawables.fewClouds,
           "Broken Clouds"  => Rez.Drawables.brokenClouds,
           "Overcast Clouds"  => Rez.Drawables.overcastClouds,
           "Rain" => Rez.Drawables.rain,
-          "Shower Rain"  => Rez.Drawables.showerRain,          
+          "Shower Rain"  => Rez.Drawables.showerRain,
           "Thunderstorm" => Rez.Drawables.thunderstorm,
           "Fog" => Rez.Drawables.fog
         };
-        
-    const xtiny = Ui.loadResource(Rez.Fonts.id_xtiny);    
-        
-	function initialize() {
+
+    const freesans = Ui.loadResource(Rez.Fonts.id_freesans);
+    const freesans_outline = Ui.loadResource(Rez.Fonts.id_freesans_outline);
+
+  function initialize() {
         var dictionary = {
             :identifier => "Weather"
         };
 
         Drawable.initialize(dictionary);
     }
-    
+
     function formatDecimal(value) {
         if (value instanceof Float || value instanceof Double) {
             return value.format("%.0f");
@@ -37,96 +37,64 @@ class Weather extends Ui.Drawable {
             return value.toString();
         }
     }
-    
+
     function formatTemperature(value) {
         if (value == null) {
-            return "?";                        
-        } 
-        
-        return Lang.format(Sys.getDeviceSettings().temperatureUnits == Sys.UNIT_METRIC ? METRIC_TEMPERATURE_TMPL : IMPERIAL_TEMPERATURE_TMPL, 
+            return "?";
+        }
+
+        return Lang.format(Sys.getDeviceSettings().temperatureUnits == Sys.UNIT_METRIC ? METRIC_TEMPERATURE_TMPL : IMPERIAL_TEMPERATURE_TMPL,
                            [formatDecimal(value)]);
     }
-    
-    function drawForecastSegment(temperature, weather, segment, dc) {    
-        var rez = icons.get(weather);    
-        var image = Ui.loadResource(rez);
-        var textPosX = dc.getWidth() / 2;
-        var textPosY = dc.getHeight() / 2;
-        var textJustification = Gfx.TEXT_JUSTIFY_LEFT;
-        var iconX = dc.getWidth() / 2;
-        var iconY = dc.getHeight() / 2;
-        var text = formatTemperature(temperature);
-        var textDimensions = dc.getTextDimensions(text, Gfx.FONT_XTINY);
-        	    
-	    dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-	    if (segment == 0) {	       
-	       iconX = iconX + 0.77 * iconX - image.getWidth();
-	       iconY = iconY - 0.77 * iconY;	       
-	       
-           textPosX = textPosX + 0.5 * textPosX - textDimensions[0]/2;
-           textPosY = textPosY - 0.88 * textPosY;
 
-	    } else if (segment == 1) {
-	       iconX = iconX + 0.77 * iconX - image.getWidth();
-	       iconY = iconY + 0.77 * iconY - image.getHeight();
-	        
-           textPosX = textPosX + 0.88 * textPosX - textDimensions[0]/2;
-           textPosY = textPosY + 0.5 * textPosY - textDimensions[1];
-           
-	    } else if (segment == 2) {
-		   iconX = iconX - 0.77 * iconX;
-	       iconY = iconY + 0.77 * iconY - image.getHeight();
+    function drawForecastSegment(temperature, weather, hour, dc) {
+      var rez = icons.get(weather);
+      var image = Ui.loadResource(rez);
+      var textPosX = dc.getWidth() / 2;
+      var textPosY = dc.getHeight() / 2;
+      var iconX = dc.getWidth() / 2;
+      var iconY = dc.getHeight() / 2;
+      var text = formatTemperature(temperature);
+      var segment = hour % 12;
+      var radius = dc.getWidth() > dc.getHeight() ? dc.getHeight() : dc.getWidth();
 
-           textPosX = textPosX - 0.5 * textPosX + textDimensions[0]/2;
-           textPosY = textPosY + 0.88 * textPosY - textDimensions[1];
-	    } else if (segment == 3) {
-	       iconX = iconX - 0.77 * iconX;
-	       iconY = iconY - 0.77 * iconY;
-	       
-           textPosX = textPosX - 0.88 * textPosX + textDimensions[0]/2;
-           textPosY = textPosY - 0.5 * textPosY;
-	    }
-	    
-	    dc.drawBitmap(iconX, iconY, image);	    
-	    dc.drawText(textPosX, textPosY, Gfx.FONT_XTINY, text, Gfx.TEXT_JUSTIFY_CENTER);	
-	        
-	    image = null;
+      radius = (radius - (image.getWidth() > image.getWidth() ? image.getWidth() : image.getHeight())) / 2;
+
+      iconX = iconX + radius * Toybox.Math.cos(Toybox.Math.PI * (segment - 3) / 6) - image.getWidth()/2;
+      iconY = iconY + radius * Toybox.Math.sin(Toybox.Math.PI * (segment - 3) / 6) - image.getHeight()/2;
+
+      textPosX = textPosX + radius * Toybox.Math.cos(Toybox.Math.PI * (2 * segment - 5) / 12);
+      textPosY = textPosY + radius * Toybox.Math.sin(Toybox.Math.PI * (2 * segment - 5) / 12);
+
+      dc.drawBitmap(iconX, iconY, image);
+      dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+      dc.drawText(textPosX, textPosY, freesans_outline, text, Gfx.TEXT_JUSTIFY_CENTER + Gfx.TEXT_JUSTIFY_VCENTER);
+      dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+      dc.drawText(textPosX, textPosY, freesans, text, Gfx.TEXT_JUSTIFY_CENTER + Gfx.TEXT_JUSTIFY_VCENTER);
+
+      image = null;
     }
-    
-    
-    function draw(dc) {      
-       if (Toybox.System has :ServiceDelegate) {
-		   var radius = dc.getWidth() > dc.getHeight() ? dc.getHeight() : dc.getWidth();
-		   var forecastTime = App.getApp().getProperty("forecastTime");
-		   var forecastTemp = App.getApp().getProperty("forecastTemp");
-		   var forecastWeather = App.getApp().getProperty("forecastWeather");
-		   var forecastTimestamp = App.getApp().getProperty("forecastTimestamp");
-		   
-		   if (forecastTime != null && forecastTemp != null && forecastWeather != null) {  
-			   for (var segment = 0; segment < 4; segment +=1) {	            
-		            var time = new Time.Moment(forecastTime[segment]);
-		            var hour = Time.Gregorian.info(time, Time.FORMAT_MEDIUM).hour;
-		            var weather = forecastWeather[segment];
-		            var temperature = forecastTemp[segment];		            
-		            var current = Sys.getClockTime().hour;
-		            
-		            Sys.println("Draw weather " + weather + " temperature " + temperature + " at " + hour + " current " + current);
-				    drawForecastSegment(temperature, weather, (hour % 12) / 3, dc);
 
-		       }
-		       
-		       if (forecastTimestamp != null) {
-		          var timeStamp = Gregorian.info(new Time.Moment(forecastTimestamp.toNumber()), Time.FORMAT_MEDIUM);
-		          var timeString = Lang.format(
-				    "$1$:$2$",
-				    [
-				        timeStamp.hour,
-				        timeStamp.min.format("%02d")
-				    ]);
-				  
-				  dc.drawText(dc.getWidth()/2, dc.getHeight() - Gfx.getFontHeight(xtiny) * 2, xtiny, timeString, Gfx.TEXT_JUSTIFY_CENTER);		
-		       }
-	       }
+
+    function draw(dc) {
+       if (Toybox.System has :ServiceDelegate) {
+       var radius = dc.getWidth() > dc.getHeight() ? dc.getHeight() : dc.getWidth();
+       var forecastTime = App.getApp().getProperty("forecastTime");
+       var forecastTemp = App.getApp().getProperty("forecastTemp");
+       var forecastWeather = App.getApp().getProperty("forecastWeather");
+
+       if (forecastTime != null && forecastTemp != null && forecastWeather != null) {
+         for (var segment = 0; segment < 4; segment +=1) {
+            var time = new Time.Moment(forecastTime[segment]);
+            var hour = Time.Gregorian.info(time, Time.FORMAT_MEDIUM).hour;
+            var weather = forecastWeather[segment];
+            var temperature = forecastTemp[segment];
+            var current = Sys.getClockTime().hour;
+
+            drawForecastSegment(temperature, weather, hour, dc);
+
+           }
+         }
        }
     }
 }

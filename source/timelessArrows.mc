@@ -43,8 +43,8 @@ class Arrows extends Ui.Drawable {
             dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, (rpos*radius)/32, Gfx.ARC_CLOCKWISE,  90 + 5 * width * (radius/16 - penWidth) - 6 * lpos, 90 - 6 * lpos);
         }
         dc.setPenWidth(3);
-        dc.drawLine(dc.getWidth()/2, 
-                    dc.getHeight()/2, 
+        dc.drawLine(dc.getWidth()/2 + (11*radius)/32 * Toybox.Math.cos(Toybox.Math.PI * (lpos - 15) / 30), 
+                    dc.getHeight()/2 + (11*radius)/32 * Toybox.Math.sin(Toybox.Math.PI * (lpos - 15) / 30),
                     dc.getWidth()/2 + (rpos*radius)/32 * Toybox.Math.cos(Toybox.Math.PI * (lpos - 15) / 30), 
                     dc.getHeight()/2 + (rpos*radius)/32 * Toybox.Math.sin(Toybox.Math.PI * (lpos - 15) / 30));
     }
