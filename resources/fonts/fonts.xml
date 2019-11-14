@@ -1,6 +1,8 @@
 <resources>
 <font id="id_xtiny" filename="xtiny.fnt" filter="0123456789:"/>
-<font id="id_bluetooth" filename="bluetooth.fnt" antialias="true"/>
+<font id="id_large" filename="roboto.fnt" filter="0123456789:"/>
+<font id="id_bluetooth" filename="bluetooth.fnt" antialias="false"/>
 <font id="id_freesans" filename="freesans.fnt" antialias="true"/>
-<font id="id_freesans_outline" filename="freesansoutline.fnt" antialias="true"/>
+<font id="id_freesans_outline" filename="freesansoutline.fnt" antialias="false"/>
+<font id="id_symbol" filename="symbols.fnt" antialias="false" filter="01234567890-✉♥👣"/>
 </resources>

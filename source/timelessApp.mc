@@ -42,44 +42,21 @@ class timelessApp extends App.AppBase {
         if (lastTime == null || lastTime.compare(Time.now()) > periodProperty) {
             Sys.println("Schedule request now");
             Background.registerForTemporalEvent(Time.now());
-        } else {
-            var nextTime = lastTime.add(new Time.Duration(periodProperty));
-          var today = Time.Gregorian.info(nextTime, Time.FORMAT_MEDIUM);
-          var dateString = Lang.format(
-              "$1$:$2$:$3$ $4$ $5$ $6$ $7$",
-              [
-                  today.hour,
-                  today.min,
-                  today.sec,
-                  today.day_of_week,
-                  today.day,
-                  today.month,
-                  today.year
-              ]
-            );
-            System.println("Schedule update at "+dateString);
-            Background.registerForTemporalEvent(nextTime);
         }
-
-        if (Toybox.Background has :getActivityCompletedEventRegistered && !Background.getActivityCompletedEventRegistered()) {
-            Sys.println("Monitor activities");
-            Background.registerForActivityCompletedEvent();
-        }
-        } else {
-          Sys.println("****background not available on this device****");
-        }
+      } else {
+        Sys.println("****background not available on this device****");
+      }
     }
 
     // Return the initial view of your application here
     function getInitialView() {
-        requestWeatherUpdate(0);
+        var view = new timelessView();
 
-        return [ new timelessView() ];
+        return [ view ];
     }
 
     // New app settings have been received so trigger a UI update
     function onSettingsChanged() {
-        requestWeatherUpdate(0);
         Ui.requestUpdate();
     }
 
@@ -116,9 +93,6 @@ class timelessApp extends App.AppBase {
           synchronizeData("longitude", data.get("position"));
 
           Ui.requestUpdate();
-          requestWeatherUpdate(0);
-        } else {
-          requestWeatherUpdate(300);
         }
     }
 

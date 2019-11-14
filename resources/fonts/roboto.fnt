@@ -1,0 +1,19 @@
+info face="Roboto Bold" size=60 bold=0 italic=0 charset="" unicode=0 stretchH=100 smooth=1 aa=1 padding=0,2,0,3 spacing=-2,-2
+common lineHeight=46 base=46 scaleW=512 scaleH=512 pages=1 packed=0
+page id=0 file="roboto.png"
+chars count=14
+char id=0       x=0    y=0    width=0    height=0    xoffset=-3   yoffset=0    xadvance=3    page=0    chnl=0 
+char id=10      x=0    y=0    width=0    height=0    xoffset=-3   yoffset=0    xadvance=3    page=0    chnl=0 
+char id=32      x=0    y=0    width=0    height=0    xoffset=-3   yoffset=0    xadvance=10   page=0    chnl=0 
+char id=48      x=72   y=0    width=16   height=45   xoffset=-1   yoffset=0    xadvance=16   page=0    chnl=0 
+char id=49      x=90   y=0    width=10   height=45   xoffset=1    yoffset=0    xadvance=14   page=0    chnl=0 
+char id=50      x=103  y=0    width=15   height=45   xoffset=-2   yoffset=0    xadvance=15   page=0    chnl=0 
+char id=51      x=2    y=0    width=15   height=45   xoffset=-2   yoffset=0    xadvance=15   page=0    chnl=0 
+char id=52      x=120  y=0    width=15   height=45   xoffset=-2   yoffset=0    xadvance=15   page=0    chnl=0 
+char id=53      x=20   y=0    width=15   height=45   xoffset=-1   yoffset=0    xadvance=15   page=0    chnl=0 
+char id=54      x=38   y=0    width=15   height=45   xoffset=-1   yoffset=0    xadvance=15   page=0    chnl=0 
+char id=55      x=140  y=0    width=15   height=45   xoffset=-2   yoffset=0    xadvance=15   page=0    chnl=0 
+char id=56      x=56   y=0    width=15   height=45   xoffset=-1   yoffset=0    xadvance=15   page=0    chnl=0 
+char id=57      x=157  y=0    width=15   height=45   xoffset=-1   yoffset=0    xadvance=15   page=0    chnl=0 
+char id=58      x=175  y=0    width=4    height=34   xoffset=0    yoffset=10   xadvance=4    page=0    chnl=0 
+kernings count=0

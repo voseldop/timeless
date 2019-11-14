@@ -2,6 +2,7 @@ using Toybox.WatchUi as Ui;
 using Toybox.Application as App;
 using Toybox.Graphics as Gfx;
 using Toybox.System as Sys;
+using Toybox.Time as Time;
 
 class Weather extends Ui.Drawable {
     const METRIC_TEMPERATURE_TMPL = "$1$°";
@@ -92,7 +93,6 @@ class Weather extends Ui.Drawable {
             var current = Sys.getClockTime().hour;
 
             drawForecastSegment(temperature, weather, hour, dc);
-
            }
          }
        }

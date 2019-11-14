@@ -193,31 +193,31 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
         // process.
         System.println("Forecast response code " + responseCode + " data "+ data);
         if (responseCode == 200) {
-           var temperature = new [4];
-           var conditions = new [4];
-           var time = new [4];
-           var clockTime = System.getClockTime();
-         var hours = clockTime.hour;
-         var minutes = clockTime.min;
-         var timeStamp = Time.now().value();
-         var location = data.get("city").get("name");
+          var temperature = new [4];
+          var conditions = new [4];
+          var time = new [4];
+          var clockTime = System.getClockTime();
+          var hours = clockTime.hour;
+          var minutes = clockTime.min;
+          var timeStamp = Time.now().value();
+          var location = data.get("city").get("name");
 
-           for (var i = 0; i<4; i+=1) {
+          for (var i = 0; i<4; i+=1) {
              temperature[i] = data.get("list")[i].get("main").get("temp");
              conditions[i] = weatherCodes.get(data.get("list")[i].get("weather")[0].get("icon"));
              time[i] = data.get("list")[i].get("dt");
-           }
-           forecastWeather = { "forecastTemp" => temperature,
+          }
+          forecastWeather = { "forecastTemp" => temperature,
                            "forecastWeather" => conditions,
                            "forecastTime" => time,
                            "forecastTimestamp" => timeStamp,
                            "forecastLocation" => location
                            };
 
-           if (currentWeather) {
-           Background.exit({ "current" => currentWeather,
-                             "forecast" => forecastWeather,
-                             "position" => {
+          if (currentWeather) {
+            Background.exit({  "current" => currentWeather,
+                               "forecast" => forecastWeather,
+                               "position" => {
                                "lattitude" => lattitude,
                                "longitude" => longitude}
                          });
