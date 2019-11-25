@@ -11,6 +11,7 @@ class timelessWidget extends Ui.Drawable {
     var segmentCount = 10;
     var bgColor = Gfx.COLOR_DK_GRAY;
     var fgColor = Gfx.COLOR_WHITE;
+    var txtColor = Gfx.COLOR_WHITE;
     var drawText = {
         0 => :drawSector0,
         1 => :drawSector1,
@@ -67,7 +68,7 @@ class timelessWidget extends Ui.Drawable {
 
         drawSector(dc);
 
-        dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
+        dc.setColor(txtColor, Gfx.COLOR_TRANSPARENT);
         dc.drawText(dc.getWidth()/2, dc.getHeight()/2 - 11*radius/32 + fontHeight / 2, font, text, Gfx.TEXT_JUSTIFY_CENTER);
     }
 
@@ -77,7 +78,7 @@ class timelessWidget extends Ui.Drawable {
 
         drawSector(dc);
 
-        dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
+        dc.setColor(txtColor, Gfx.COLOR_TRANSPARENT);
         dc.drawText(dc.getWidth()/2 - 9 *radius/32, dc.getHeight()/2 - fontHeight / 2, font, text, Gfx.TEXT_JUSTIFY_CENTER);
     }
 
@@ -87,7 +88,7 @@ class timelessWidget extends Ui.Drawable {
 
         drawSector(dc);
 
-        dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
+        dc.setColor(txtColor, Gfx.COLOR_TRANSPARENT);
         dc.drawText(dc.getWidth()/2, dc.getHeight()/2 + 11*radius/32 - 3 * fontHeight / 2, font, text, Gfx.TEXT_JUSTIFY_CENTER);
     }
 
@@ -96,9 +97,8 @@ class timelessWidget extends Ui.Drawable {
         var fontHeight = dc.getFontHeight(Gfx.FONT_TINY);
 
         drawSector(dc);
-
-        dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
-        dc.drawText(dc.getWidth()/2 + 9 * radius/32, dc.getHeight()/2 - fontHeight / 2, font, text, Gfx.TEXT_JUSTIFY_CENTER);
+        dc.setColor(txtColor, Gfx.COLOR_TRANSPARENT);
+        dc.drawText(dc.getWidth()/2 + 8 * radius/32, dc.getHeight()/2 + 8 * radius/32, font, text, Gfx.TEXT_JUSTIFY_CENTER);
     }
 
     function draw(dc) {

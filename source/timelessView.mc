@@ -167,7 +167,7 @@ class timelessView extends Ui.WatchFace {
        }
 
        if (duration == null || duration.value() > period) {
-        App.getApp().requestWeatherUpdate(0);
+        App.getApp().requestWeatherUpdate();
        }
     }
 

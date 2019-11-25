@@ -3,10 +3,15 @@
     <string id="AppName">timeless</string>
 
     <string id="BackgroundColorTitle">Background Color used when no weather info available</string>
-    <string id="LocationTitle">Location (confirm spelling on openeweathermap.org)</string>
+    <string id="LocationTitle">Default location (confirm spelling on openeweathermap.org)</string>
+    <string id="UsePositionTitle">Use device position for weather</string>
     <string id="WeatherUpdateTitle">Weather Update Period in seconds</string>
-    <string id="MeasurementUnits">Measurement Units</string>
-    <string id="Metric">Metric</string>
-    <string id="Imperial">Imperial</string>
-
+    <string id="DisplayHRTitle">Heart rate measurements display style</string>
+    <string id="Disabled">Disabled</string>
+    <string id="Always">Always</string>
+    <string id="Low">Show when low</string>
+    <string id="HRLast">Last measurement</string>
+    <string id="HRHistoryDuration">Min/Max over period</string>
+    <string id="DisplayHRDuration">Period in seconds for HR statistic over period mode</string>
+    <string id="DisplayBatteryTitle">Display style for battery level</string>
 </strings>

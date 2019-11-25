@@ -90,9 +90,10 @@ class Weather extends Ui.Drawable {
             var hour = Time.Gregorian.info(time, Time.FORMAT_MEDIUM).hour;
             var weather = forecastWeather[segment];
             var temperature = forecastTemp[segment];
-            var current = Sys.getClockTime().hour;
 
-            drawForecastSegment(temperature, weather, hour, dc);
+            if (Time.now().subtract(new Time.Duration(Time.Gregorian.SECONDS_PER_HOUR * 3)).lessThan(time)) {
+              drawForecastSegment(temperature, weather, hour, dc);
+            }
            }
          }
        }

@@ -2,5 +2,8 @@
     <property id="BackgroundColor" type="number">0x000000</property>
     <property id="WeatherUpdatePeriod" type="number">3600</property>
     <property id="WeatherLocation" type="string">Saint Petersburg</property>
-    <property id="Units" type="number">0</property>
+    <property id="UsePosition" type="boolean">true</property>
+    <property id="HRPeriod" type="number">3600</property>
+    <property id="HRStyle" type="number">2</property>
+    <property id="BatteryLevelStyle" type="number">0</property>
 </properties>

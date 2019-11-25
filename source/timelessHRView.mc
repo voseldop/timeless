@@ -1,7 +1,6 @@
 using Toybox.WatchUi as Ui;
 using Toybox.Application as App;
 using Toybox.Graphics as Gfx;
-using Toybox.Time;
 
 class HeartRate extends Ui.Drawable {
 
@@ -20,9 +19,15 @@ class HeartRate extends Ui.Drawable {
     }
 
     function getIterator() {
+      var duration = App.getApp().getProperty("HRPeriod");
+      var style = App.getApp().getProperty("HRStyle");
       // Check device for SensorHistory compatibility
-      if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getHeartRateHistory)) {
-          return Toybox.SensorHistory.getHeartRateHistory({:period => 1});
+      if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getHeartRateHistory) && (style == null || style > 0)) {
+          if (style == 1) {
+            return Toybox.SensorHistory.getHeartRateHistory({:period => 1});
+          } else if (style == 2) {
+              return Toybox.SensorHistory.getHeartRateHistory({:period => new Time.Duration(duration)});
+          }
       }
       return null;
   }
@@ -37,12 +42,17 @@ class HeartRate extends Ui.Drawable {
             var max = sensorIter.getMax();
 
             if (min != null && max != null) {
-              System.println(Lang.format("$1$ $2$", [min, max]));
-
               var symbols = Ui.loadResource(Rez.Fonts.id_symbol);
 
               dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
-              dc.drawText(dc.getWidth()/2, dc.getHeight()/2 + Gfx.getFontHeight(Gfx.FONT_SYSTEM_NUMBER_HOT) / 2 + Gfx.getFontHeight(Gfx.FONT_TINY), symbols, Lang.format("♥$2$-$3$", [0, min, max]), Gfx.TEXT_JUSTIFY_CENTER);
+
+              var text = "";
+              if (min != max) {
+                text = Lang.format("♥$2$-$3$", [0, min, max]);
+              } else {
+                text = Lang.format("♥$2$", [0, min, max]);
+              }
+              dc.drawText(dc.getWidth()/2, dc.getHeight()/2 + Gfx.getFontHeight(Gfx.FONT_SYSTEM_NUMBER_HOT) / 2 + Gfx.getFontHeight(Gfx.FONT_TINY), symbols, text, Gfx.TEXT_JUSTIFY_CENTER);
               symbols = null;
             }
         }

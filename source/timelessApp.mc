@@ -3,6 +3,7 @@ using Toybox.WatchUi as Ui;
 using Toybox.System as Sys;
 using Toybox.Background;
 using Toybox.Time;
+using Toybox.Time.Gregorian;
 
 class timelessApp extends App.AppBase {
 
@@ -19,11 +20,16 @@ class timelessApp extends App.AppBase {
     function onStop(state) {
     }
 
-    function requestWeatherUpdate(period) {
+    function requestWeatherUpdate() {
+      if (!Sys.getDeviceSettings().phoneConnected) {
+        Sys.println("Phone disconnected");
+        return;
+      }
+
       if(Toybox.System has :ServiceDelegate) {
         App.getApp().setProperty("weather_api_key", Ui.loadResource(Rez.Strings.openweathermap_apikey));
-        var periodProperty = period == 0 ? App.getApp().getProperty("WeatherUpdatePeriod") : period;
-        if (periodProperty == null || periodProperty <= 0) {
+        var periodProperty = App.getApp().getProperty("WeatherUpdatePeriod");
+        if (periodProperty == null || periodProperty < 0) {
           Sys.println("Weather update is disabled");
           return;
         }
@@ -38,10 +44,48 @@ class timelessApp extends App.AppBase {
            periodProperty = 300;
         }
 
+        var today = Gregorian.info(Time.now(), Time.FORMAT_MEDIUM);
+        var dateString = Lang.format(
+              "$1$:$2$:$3$ $4$ $5$ $6$ $7$",
+              [
+              today.hour,
+              today.min,
+              today.sec,
+              today.day_of_week,
+              today.day,
+              today.month,
+              today.year
+              ]
+            );
+
         var lastTime = Background.getLastTemporalEventTime();
-        if (lastTime == null || lastTime.compare(Time.now()) > periodProperty) {
-            Sys.println("Schedule request now");
-            Background.registerForTemporalEvent(Time.now());
+
+        if (lastTime != null) {
+          var last = Gregorian.info(lastTime, Time.FORMAT_MEDIUM);
+          var lastDateString = Lang.format(
+                "$1$:$2$:$3$ $4$ $5$ $6$ $7$",
+                [
+                last.hour,
+                last.min,
+                last.sec,
+                last.day_of_week,
+                last.day,
+                last.month,
+                last.year
+                ]
+              );
+
+          var duration = Time.now().compare(lastTime);
+
+          if (duration > periodProperty) {
+              System.println(dateString + " requestWeatherUpdate scheduled "+ duration);
+              Background.registerForTemporalEvent(Time.now());
+          } else {
+              System.println(dateString + " requestWeatherUpdate is skipped " + lastDateString + " " + periodProperty);
+          }
+        } else {
+          System.println(dateString + " requestWeatherUpdate scheduled now");
+          Background.registerForTemporalEvent(Time.now());
         }
       } else {
         Sys.println("****background not available on this device****");
@@ -80,7 +124,9 @@ class timelessApp extends App.AppBase {
         var minutes = clockTime.min;
         var timeString = Lang.format(timeFormat, [hours, minutes.format("%02d")]);
 
-        if (data instanceof Dictionary) {
+        System.println(data);
+
+        if (data instanceof Dictionary && (data.get("error") == null || data.get("error") == false)) {
           synchronizeData("temperature", data.get("current"));
           synchronizeData("weatherCode", data.get("current"));
           synchronizeData("forecastTemp", data.get("forecast"));
@@ -91,9 +137,10 @@ class timelessApp extends App.AppBase {
           synchronizeData("currentLocation", data.get("current"));
           synchronizeData("lattitude", data.get("position"));
           synchronizeData("longitude", data.get("position"));
-
-          Ui.requestUpdate();
+        } else {
+          App.getApp().setProperty("currentLocation", data.get("message"));
         }
+        Ui.requestUpdate();
     }
 
 }

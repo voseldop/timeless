@@ -1,22 +1,36 @@
 <settings>
-
-    <setting propertyKey="@Properties.BackgroundColor" title="@Strings.BackgroundColorTitle">
-        <settingConfig type="numeric">
-        </settingConfig>
-    </setting>
     
     <setting propertyKey="@Properties.WeatherLocation" title="@Strings.LocationTitle">
         <settingConfig type="alphaNumeric">
         </settingConfig>
     </setting>
     
+    <setting propertyKey="@Properties.UsePosition" title="@Strings.UsePositionTitle">
+        <settingConfig type="boolean" />
+    </setting>
+    
     <setting propertyKey="@Properties.WeatherUpdatePeriod" title="@Strings.WeatherUpdateTitle">
         <settingConfig type="numeric">
         </settingConfig>
     </setting>
-    <setting propertyKey="@Properties.Units" title="@Strings.MeasurementUnits">
-    	<settingConfig type="list">
-    		<listEntry value="0">@Strings.Metric</listEntry>
-    		<listEntry value="1">@Strings.Imperial</listEntry>
-    </settingConfig></setting>
+    
+    <setting propertyKey="@Properties.HRStyle" title="@Strings.DisplayHRTitle">
+        <settingConfig type="list" >
+          <listEntry value="0">@Strings.Disabled</listEntry>
+          <listEntry value="1">@Strings.HRLast</listEntry>
+          <listEntry value="2">@Strings.HRHistoryDuration</listEntry>
+        </settingConfig>
+    </setting>
+    
+    <setting propertyKey="@Properties.HRPeriod" title="@Strings.DisplayHRDuration">
+        <settingConfig type="numeric" />
+    </setting>
+    
+    <setting propertyKey="@Properties.BatteryLevelStyle" title="@Strings.DisplayBatteryTitle">
+        <settingConfig type="list" >
+          <listEntry value="0">@Strings.Disabled</listEntry>
+          <listEntry value="1">@Strings.Low</listEntry>
+          <listEntry value="2">@Strings.Always</listEntry>
+        </settingConfig>
+    </setting>
 </settings>

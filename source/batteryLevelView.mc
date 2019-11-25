@@ -4,24 +4,37 @@ using Toybox.Graphics as Gfx;
 
 class Battery extends timelessWidget {
 
+    var symbols;
+
     function initialize() {
-        
+
         bgColor = Gfx.COLOR_RED;
         fgColor = Gfx.COLOR_GREEN;
         sector = 3;
-        
+        font = Gfx.FONT_XTINY;
+
         className = "Battery";
+        symbols = Ui.loadResource(Rez.Fonts.id_symbol);
         timelessWidget.initialize();
     }
 
     function draw(dc) {
         level = System.getSystemStats().battery;
-        if (sector % 2 == 0) {
-        	text = level.format("%d")+"%";
+        var style = App.getApp().getProperty("BatteryLevelStyle");
+        if (style == 2 || (style == 1 && level < 20)) {
+          text = level.format("%d")+"%";
         } else {
-            text = "";
+          text = "";
+        }
+        if (level < 20) {
+          txtColor = Gfx.COLOR_RED;
+        } else {
+          txtColor = Gfx.COLOR_WHITE;
         }
         timelessWidget.draw(dc);
+        dc.setColor(txtColor, Gfx.COLOR_TRANSPARENT);
+        var radius = dc.getWidth() > dc.getHeight() ? dc.getHeight() : dc.getWidth();
+        dc.drawText(dc.getWidth()/2 + 8 * radius/32, dc.getHeight()/2, symbols, "🔋", Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
     }
 
 }

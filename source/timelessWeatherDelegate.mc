@@ -62,20 +62,27 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
       currentWeather = null;
       forecastWeather = null;
 
-      var positionInfo = Position.getInfo().position;
-      var quality = Position.getInfo().accuracy;
-      if (positionInfo == null) {
-        var activityInfo = Activity.getActivityInfo();
-        if (activityInfo != null) {
-                positionInfo = activityInfo.currentLocation;
-                quality = activityInfo.currentLocationAccuracy;
-          }
-      }
+      var usePosition = App.getApp().getProperty("UsePosition");
+      System.println("Use position is " + usePosition);
 
-      if (positionInfo != null && quality > Position.QUALITY_NOT_AVAILABLE) {
+      if (usePosition == null || usePosition == true) {
+        var positionInfo = Position.getInfo().position;
+        var quality = Position.getInfo().accuracy;
+        if (positionInfo == null) {
+          var activityInfo = Activity.getActivityInfo();
+          if (activityInfo != null) {
+            positionInfo = activityInfo.currentLocation;
+            quality = activityInfo.currentLocationAccuracy;
+          }
+        }
+        if (positionInfo != null && quality > Position.QUALITY_NOT_AVAILABLE) {
           lattitude = positionInfo.toDegrees()[0];
           longitude = positionInfo.toDegrees()[1];
           System.println("Refresh location " + lattitude + ", " + longitude + " quality : " + quality);
+        }
+      } else {
+        lattitude = null;
+        longitude = null;
       }
 
       cityCode = App.getApp().getProperty("WeatherLocation");
@@ -102,7 +109,7 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
     }
 
     function getForecastWeatherURI() {
-        var appid = App.getApp().getProperty("weather_api_key");
+      var appid = App.getApp().getProperty("weather_api_key");
       if (lattitude != null && longitude != null) {
          return Lang.format(FORECAST_COORD_WEATHER_URI, [appid, lattitude, longitude, getTemperatureUnits()]);
       } else {
@@ -161,7 +168,8 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
                          });
         }
         } else {
-            Background.exit(responseCode);
+            Background.exit({"error" => true,
+                             "message" => data.get("message")});
         }
 
     }
@@ -223,7 +231,8 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
                          });
          }
         } else {
-            Background.exit(responseCode);
+            Background.exit({"error" => true,
+                             "message" => data.get("message")});
         }
 
     }
