@@ -21,14 +21,19 @@ class HeartRate extends Ui.Drawable {
     function getIterator() {
       var duration = App.getApp().getProperty("HRPeriod");
       var style = App.getApp().getProperty("HRStyle");
-      // Check device for SensorHistory compatibility
-      if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getHeartRateHistory) && (style == null || style > 0)) {
-          if (style == 1) {
-            return Toybox.SensorHistory.getHeartRateHistory({:period => 1});
-          } else if (style == 2) {
-              return Toybox.SensorHistory.getHeartRateHistory({:period => new Time.Duration(duration)});
-          }
+      try {
+        // Check device for SensorHistory compatibility
+        if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getHeartRateHistory) && (style == null || style > 0)) {
+            if (style == 1) {
+              return Toybox.SensorHistory.getHeartRateHistory({:period => 1});
+            } else if (style == 2 && duration instanceof Toybox.Lang.Number) {
+                return Toybox.SensorHistory.getHeartRateHistory({:period => new Time.Duration(duration)});
+            }
+        }
       }
+      catch( ex ) {
+        System.println(ex.getErrorMessage());
+    }
       return null;
   }
 

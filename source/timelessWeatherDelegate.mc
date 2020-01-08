@@ -9,10 +9,10 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
     // When a scheduled background event triggers, make a request to
     // a service and handle the response with a callback function
     // within this delegate.
-    const CURRENT_CITY_WEATHER_URI = "https://api.openweathermap.org/data/2.5/weather?q=$2$&appid=$1$&units=$3$";
-    const CURRENT_COORD_WEATHER_URI = "https://api.openweathermap.org/data/2.5/weather?lat=$2$&lon=$3$&appid=$1$&units=$4$";
-    const FORECAST_CITY_WEATHER_URI = "https://api.openweathermap.org/data/2.5/forecast?q=$2$&appid=$1$&units=$3$&cnt=4";
-    const FORECAST_COORD_WEATHER_URI = "https://api.openweathermap.org/data/2.5/forecast?lat=$2$&lon=$3$&appid=$1$&units=$4$&cnt=4";
+    const CURRENT_CITY_WEATHER_URI = "https://api.openweathermap.org/data/2.5/weather?q=$2$&appid=$1$&units=metric";
+    const CURRENT_COORD_WEATHER_URI = "https://api.openweathermap.org/data/2.5/weather?lat=$2$&lon=$3$&appid=$1$&units=metric";
+    const FORECAST_CITY_WEATHER_URI = "https://api.openweathermap.org/data/2.5/forecast?q=$2$&appid=$1$&units=metric&cnt=4";
+    const FORECAST_COORD_WEATHER_URI = "https://api.openweathermap.org/data/2.5/forecast?lat=$2$&lon=$3$&appid=$1$&units=metric&cnt=4";
 
     const TIME_FORMAT = "$1$:$2$";
 
@@ -87,33 +87,27 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
 
       cityCode = App.getApp().getProperty("WeatherLocation");
 
-      System.println("Current weather request " + getCurrentWeatherURI());
-
       Communications.cancelAllRequests();
 
       makeCurrentWeatherRequest();
       makeForecastWeatherRequest();
     }
 
-    function getTemperatureUnits() {
-        return System.getDeviceSettings().temperatureUnits == System.UNIT_METRIC ? "metric" : "imperial";
-    }
-
     function getCurrentWeatherURI() {
         var appid = App.getApp().getProperty("weather_api_key");
         if (lattitude != null && longitude != null) {
-         return Lang.format(CURRENT_COORD_WEATHER_URI, [appid, lattitude, longitude, getTemperatureUnits()]);
+         return Lang.format(CURRENT_COORD_WEATHER_URI, [appid, lattitude, longitude]);
       } else {
-         return Lang.format(CURRENT_CITY_WEATHER_URI, [appid, Communications.encodeURL(cityCode), getTemperatureUnits()]);
+         return Lang.format(CURRENT_CITY_WEATHER_URI, [appid, Communications.encodeURL(cityCode)]);
       }
     }
 
     function getForecastWeatherURI() {
       var appid = App.getApp().getProperty("weather_api_key");
       if (lattitude != null && longitude != null) {
-         return Lang.format(FORECAST_COORD_WEATHER_URI, [appid, lattitude, longitude, getTemperatureUnits()]);
+         return Lang.format(FORECAST_COORD_WEATHER_URI, [appid, lattitude, longitude]);
       } else {
-         return Lang.format(FORECAST_CITY_WEATHER_URI, [appid, Communications.encodeURL(cityCode), getTemperatureUnits()]);
+         return Lang.format(FORECAST_CITY_WEATHER_URI, [appid, Communications.encodeURL(cityCode)]);
       }
     }
 
@@ -142,9 +136,10 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
         // Do stuff with the response data here and send the data
         // payload back to the app that originated the background
         // process.
-        System.println("Forecast response code " + responseCode + " data "+ data);
 
         if (responseCode == 200) {
+          System.println("Current weather response code " + responseCode + " data " + data);
+
           var temperature = data.get("main").get("temp");
           var weatherCode = data.get("weather")[0].get("icon");
           var timeFormat = "$1$:$2$";
@@ -153,21 +148,26 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
           var minutes = clockTime.min;
           var timeStamp = Time.now().value();
           var location = data.get("name");
+          var windSpeed = data.get("wind").get("speed");
+          var windDirection = data.get("wind").get("deg");
 
           currentWeather = { "temperature" => temperature,
-                          "weatherCode" => weatherCodes.get(weatherCode),
-                          "timestamp" => timeStamp,
-                          "currentLocation" => location };
+                             "currentWeatherCode" => weatherCodes.get(weatherCode),
+                             "currentWindSpeed" => windSpeed,
+                             "currentWindDirection" => windDirection,
+                             "timestamp" => timeStamp,
+                             "currentLocation" => location };
 
-        if (forecastWeather) {
+          if (forecastWeather) {
            Background.exit({ "current" => currentWeather,
                              "forecast" => forecastWeather,
                              "position" => {
                                "lattitude" => lattitude,
                                "longitude" => longitude}
                          });
-        }
+          }
         } else {
+            System.println("Current weather response code " + responseCode + " message " + data.get("message"));
             Background.exit({"error" => true,
                              "message" => data.get("message")});
         }
@@ -199,10 +199,13 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
         // Do stuff with the response data here and send the data
         // payload back to the app that originated the background
         // process.
-        System.println("Forecast response code " + responseCode + " data "+ data);
         if (responseCode == 200) {
+          System.println("Forecast response code " + responseCode);
+
           var temperature = new [4];
           var conditions = new [4];
+          var windDirection = new [4];
+          var windSpeed = new [4];
           var time = new [4];
           var clockTime = System.getClockTime();
           var hours = clockTime.hour;
@@ -214,9 +217,13 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
              temperature[i] = data.get("list")[i].get("main").get("temp");
              conditions[i] = weatherCodes.get(data.get("list")[i].get("weather")[0].get("icon"));
              time[i] = data.get("list")[i].get("dt");
+             windDirection[i] = data.get("list")[i].get("wind").get("deg");
+             windSpeed[i] = data.get("list")[i].get("wind").get("speed");
           }
           forecastWeather = { "forecastTemp" => temperature,
                            "forecastWeather" => conditions,
+                           "forecastWindSpeed" => windSpeed,
+                           "forecastWindDirection" => windDirection,
                            "forecastTime" => time,
                            "forecastTimestamp" => timeStamp,
                            "forecastLocation" => location
@@ -231,6 +238,7 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
                          });
          }
         } else {
+           System.println("Forecast response code " + responseCode + " message "+ data.get("message"));
             Background.exit({"error" => true,
                              "message" => data.get("message")});
         }

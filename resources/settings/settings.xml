@@ -5,6 +5,23 @@
         </settingConfig>
     </setting>
     
+    <setting propertyKey="@Properties.WeatherStyle" title="@Strings.DisplayWeatherTitle">
+        <settingConfig type="list" >
+          <listEntry value="0">@Strings.Disabled</listEntry>
+          <listEntry value="1">@Strings.ConditionsOnly</listEntry>
+          <listEntry value="2">@Strings.ConditionsAndTemperature</listEntry>
+          <listEntry value="4">@Strings.ConditionsTemperatureAndWind</listEntry>
+        </settingConfig>
+    </setting>
+    
+    <setting propertyKey="@Properties.WindSpeedUnits" title="@Strings.DisplayWindUnits">
+        <settingConfig type="list" >
+          <listEntry value="0">@Strings.MetersPerSecond</listEntry>
+          <listEntry value="1">@Strings.KilometersPerHour</listEntry>
+          <listEntry value="2">@Strings.MilesPerHour</listEntry>
+        </settingConfig>
+    </setting>
+    
     <setting propertyKey="@Properties.UsePosition" title="@Strings.UsePositionTitle">
         <settingConfig type="boolean" />
     </setting>
@@ -33,4 +50,9 @@
           <listEntry value="2">@Strings.Always</listEntry>
         </settingConfig>
     </setting>
+    
+    <setting propertyKey="@Properties.DisplaySeconds" title="@Strings.DisplaySecondsTitle">
+        <settingConfig type="boolean" />
+    </setting>
+    
 </settings>

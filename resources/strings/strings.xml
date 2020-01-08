@@ -14,4 +14,13 @@
     <string id="HRHistoryDuration">Min/Max over period</string>
     <string id="DisplayHRDuration">Period in seconds for HR statistic over period mode</string>
     <string id="DisplayBatteryTitle">Display style for battery level</string>
+    <string id="DisplayWeatherTitle">Display style for weather</string>
+    <string id="ConditionsOnly">Display only weather conditions</string>
+    <string id="ConditionsAndTemperature">Display weather conditions and temperature</string>
+    <string id="ConditionsTemperatureAndWind">Display weather conditions, temperature wind speed and direction</string>
+    <string id="DisplayWindUnits">Units for wind speed</string>
+    <string id="MetersPerSecond">m/s</string>
+    <string id="MilesPerHour">mph</string>
+    <string id="KilometersPerHour">km/h</string>
+    <string id="DisplaySecondsTitle">Enable seconds display when supported by hardware</string>
 </strings>

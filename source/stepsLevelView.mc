@@ -13,7 +13,14 @@ class Steps extends timelessWidget {
     }
 
     function draw(dc) {
-        text = Lang.format("👣$1$", [Monitor.getInfo().steps.format("%d")]);
+        var steps = Monitor.getInfo().steps.format("%d");
+        var floorsClimbed = "";
+        var template = "👣$1$";
+        if (Toybox.ActivityMonitor.Info has :floorsClimbed) {
+          floorsClimbed = Monitor.getInfo().floorsClimbed.format("%d");
+          template = "👣$1$⏫$2$";
+        }
+        text = Lang.format(template, [steps, floorsClimbed]);
         level = Monitor.getInfo().steps * 100 / Monitor.getInfo().stepGoal;
         timelessWidget.draw(dc);
     }

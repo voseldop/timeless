@@ -8,21 +8,22 @@ using Toybox.Time.Gregorian as Calendar;
 using Toybox.Time;
 using Toybox.Background;
 
+var partialUpdatesAllowed = false;
+
 class timelessView extends Ui.WatchFace {
 
     const METRIC_TEMPERATURE_TMPL = "$1$°C";
     const IMPERIAL_TEMPERATURE_TMPL = "$1$°F";
-    const connectivity = Ui.loadResource(Rez.Fonts.id_bluetooth);
     const large = Ui.loadResource(Rez.Fonts.id_large);
-    const xtiny = Gfx.FONT_XTINY;
-
-    var logo;
+    const symbol = Ui.loadResource(Rez.Fonts.id_symbol);
+    const xtiny = Ui.loadResource(Rez.Fonts.id_xtiny);
 
     var tempView;
+    var lowPower = true;
 
     function initialize() {
         WatchFace.initialize();
-        logo = new Rez.Drawables.Logo();
+        partialUpdatesAllowed = ( Toybox.WatchUi.WatchFace has :onPartialUpdate );
     }
 
     // Load your resources here
@@ -37,13 +38,19 @@ class timelessView extends Ui.WatchFace {
         var timeString = "20:00";
         var locationView = View.findDrawableById("LocationLabel");
         var connectivityView = View.findDrawableById("ConnectivityLabel");
+        var secondsView = View.findDrawableById("SecondsLabel");
+        var dayNightView = View.findDrawableById("DayNightLabel");
 
-        dateView.setLocation(timeView.locX - 25, timeView.locY - Gfx.getFontHeight(xtiny));
-        weatherView.setLocation(timeView.locX + 25, timeView.locY - Gfx.getFontHeight(xtiny));
-        updateView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, timeView.locY + Gfx.getFontHeight(connectivity));
+        dateView.setLocation(timeView.locX - 25, timeView.locY - Gfx.getFontHeight(Gfx.FONT_XTINY) / 2);
+        weatherView.setLocation(timeView.locX + 25, timeView.locY - Gfx.getFontHeight(Gfx.FONT_XTINY) /2);
+        updateView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, timeView.locY + Gfx.getFontHeight(symbol));
         locationView.setLocation(locationView.locX, timeView.locY + Gfx.getFontHeight(large));
         connectivityView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, timeView.locY);
-        notificationsView.setLocation(timeView.locX, timeView.locY - Gfx.getFontHeight(xtiny) / 2 );
+        notificationsView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, timeView.locY + Gfx.getFontHeight(symbol) +  Gfx.getFontHeight(xtiny));
+        secondsView.setLocation(timeView.locX + dc.getTextDimensions(timeString, large)[0] / 2,
+                                timeView.locY + dc.getTextDimensions(timeString, large)[1] - dc.getTextDimensions(timeString, xtiny)[1] / 2);
+        dayNightView.setLocation(timeView.locX + dc.getTextDimensions(timeString, large)[0] / 2,
+                                timeView.locY - 5);
     }
 
     // Called when this View is brought to the foreground. Restore
@@ -69,7 +76,7 @@ class timelessView extends Ui.WatchFace {
       var radius = dc.getWidth() > dc.getHeight() ? dc.getHeight() : dc.getWidth();
       var timeFormat = "$1$:$2$";
       var clockTime = Sys.getClockTime();
-      var hours = clockTime.hour;
+      var hours = Sys.getDeviceSettings().is24Hour ? clockTime.hour : clockTime.hour % 12;
       var minutes = clockTime.min;
       var timeString = Lang.format(timeFormat, [hours, minutes.format("%02d")]);
       var dateInfo = Calendar.info(Time.now(), Calendar.FORMAT_MEDIUM);
@@ -79,6 +86,9 @@ class timelessView extends Ui.WatchFace {
       var locationView = View.findDrawableById("LocationLabel");
       var connectivityView = View.findDrawableById("ConnectivityLabel");
       var updateView = View.findDrawableById("UpdateTimeLabel");
+      var secondsView = View.findDrawableById("SecondsLabel");
+      var dayNigthView = View.findDrawableById("DayNightLabel");
+      var secondsAllowed = App.getApp().getProperty("DisplaySeconds");
 
       // Update time
       var timeView = View.findDrawableById("TimeLabel");
@@ -106,7 +116,7 @@ class timelessView extends Ui.WatchFace {
       }
 
       if (Sys.getDeviceSettings().phoneConnected) {
-        connectivityView.setText(" ");
+        connectivityView.setText("⌚");
       } else {
         connectivityView.setText("");
       }
@@ -115,19 +125,53 @@ class timelessView extends Ui.WatchFace {
 
       if (forecastTimestamp != null) {
         var timeStamp = Time.Gregorian.info(new Time.Moment(forecastTimestamp.toNumber()), Time.FORMAT_MEDIUM);
-        timeString = Lang.format("$1$:$2$", [timeStamp.hour, timeStamp.min.format("%02d")]);
+        if (Sys.getDeviceSettings().is24Hour) {
+          timeString = Lang.format("$1$:$2$", [timeStamp.hour, timeStamp.min.format("%02d")]);
+        } else {
+          timeString = Lang.format("$1$:$2$", [timeStamp.hour % 12, timeStamp.min.format("%02d")]);
+        }
       }
       updateView.setText(timeString);
+
+      if (Sys.getDeviceSettings().is24Hour) {
+        dayNigthView.setText("");
+      } else {
+        dayNigthView.setLocation(timeView.locX + timeView.width / 2,
+                                timeView.locY - 5);
+        dayNigthView.setText(clockTime.hour > 12 ? "pm" : "am");
+      }
 
       var notificationsView = View.findDrawableById("NotificationLabel");
       var notificationText = Lang.format("✉$1$", [Sys.getDeviceSettings().notificationCount.format("%i")]);
       notificationsView.setText(notificationText);
 
-          // Call the parent onUpdate function to redraw the layout
+      if (partialUpdatesAllowed && secondsAllowed == true) {
+        onPartialUpdate(dc);
+      } else if (!lowPower && secondsAllowed == true) {
+        secondsView.setLocation(timeView.locX+timeView.width/2, secondsView.locY);
+        secondsView.setText(clockTime.sec.format("%02d"));
+      } else {
+        secondsView.setText("");
+      }
+      // Call the parent onUpdate function to redraw the layout
       View.onUpdate(dc);
+      refreshWeather();
+    }
 
-      onExitSleep();
-
+    function onPartialUpdate(dc) {
+      if (App.getApp().getProperty("DisplaySeconds") == true) {
+        var clockTime = Sys.getClockTime();
+        var secondsView = View.findDrawableById("SecondsLabel");
+        var timeView = View.findDrawableById("TimeLabel");
+        dc.setClip(secondsView.locX, secondsView.locY, secondsView.width, secondsView.height);
+        dc.setColor(dc.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+        dc.fillRectangle(secondsView.locX, secondsView.locY, secondsView.width, secondsView.height);
+        dc.setColor(dc.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+        secondsView.setLocation(timeView.locX+timeView.width/2, secondsView.locY);
+        secondsView.setText(clockTime.sec.format("%02d"));
+        secondsView.draw(dc);
+        dc.clearClip();
+      }
     }
 
     function formatDecimal(value) {
@@ -143,8 +187,11 @@ class timelessView extends Ui.WatchFace {
             return "?";
         }
 
-        return Lang.format(Sys.getDeviceSettings().temperatureUnits == Sys.UNIT_METRIC ? METRIC_TEMPERATURE_TMPL : IMPERIAL_TEMPERATURE_TMPL,
-                           [formatDecimal(value)]);
+        if (Sys.getDeviceSettings().temperatureUnits == Sys.UNIT_STATUTE) {
+           return Lang.format(IMPERIAL_TEMPERATURE_TMPL, [formatDecimal(value * 9 / 5 + 32)]);
+        }
+
+        return Lang.format(METRIC_TEMPERATURE_TMPL, [formatDecimal(value)]);
     }
 
     // Called when this View is removed from the screen. Save the
@@ -153,9 +200,8 @@ class timelessView extends Ui.WatchFace {
     function onHide() {
     }
 
-    // The user has just looked at their watch. Timers and animations may be started here.
-    function onExitSleep() {
-       var duration = null;
+    function refreshWeather() {
+      var duration = null;
        var forecastTimestamp = App.getApp().getProperty("forecastTimestamp");
        var period = App.getApp().getProperty("WeatherUpdatePeriod");
        if (period == null) {
@@ -171,8 +217,33 @@ class timelessView extends Ui.WatchFace {
        }
     }
 
-    // Terminate any active timers and prepare for slow updates.
-    function onEnterSleep() {
+    // The user has just looked at their watch. Timers and animations may be started here.
+    function onExitSleep() {
+       refreshWeather();
+       lowPower = false;
     }
 
+    // Terminate any active timers and prepare for slow updates.
+    function onEnterSleep() {
+       Sys.println("Enter sleep");
+       lowPower = true;
+       Ui.requestUpdate();
+    }
+
+}
+
+class AnalogDelegate extends Ui.WatchFaceDelegate {
+    function initialize() {
+        WatchFaceDelegate.initialize();
+    }
+    // The onPowerBudgetExceeded callback is called by the system if the
+    // onPartialUpdate method exceeds the allowed power budget. If this occurs,
+    // the system will stop invoking onPartialUpdate each second, so we set the
+    // partialUpdatesAllowed flag here to let the rendering methods know they
+    // should not be rendering a second hand.
+    function onPowerBudgetExceeded(powerInfo) {
+        System.println( "Average execution time: " + powerInfo.executionTimeAverage );
+        System.println( "Allowed execution time: " + powerInfo.executionTimeLimit );
+        partialUpdatesAllowed = false;
+    }
 }

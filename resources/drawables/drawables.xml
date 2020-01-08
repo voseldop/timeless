@@ -1,12 +1,79 @@
 <drawables>
     <bitmap id="LauncherIcon" filename="launcher_icon.png" />
-    <bitmap id="overcastClouds" filename="overcastClouds.png"/>
-    <bitmap id="brokenClouds" filename="brokenClouds.png"/>
-    <bitmap id="fewClouds" filename="fewClouds.png"/>
-    <bitmap id="showerRain" filename="showerRain.png"/>
-    <bitmap id="rain" filename="rain.png"/>
-    <bitmap id="snow" filename="snow.png"/>
-    <bitmap id="sun" filename="sunny.png"/>
-    <bitmap id="thunderstorm" filename="thunderstorm.png"/>
-    <bitmap id="fog" filename="fog.png"/>
+    <bitmap id="overcastClouds" filename="overcastClouds.png">
+      <palette disableTransparency="false">
+            <color>FFFFFF</color>
+            <color>AAAAAA</color>
+            <color>555555</color>
+            <color>000000</color>
+      </palette>
+    </bitmap>
+    <bitmap id="brokenClouds" filename="brokenClouds.png">
+      <palette disableTransparency="false">
+            <color>FFFFFF</color>
+            <color>AAAAAA</color>
+            <color>555555</color>
+            <color>000000</color>
+            <color>FFAA00</color>
+      </palette>
+    </bitmap>
+    <bitmap id="fewClouds" filename="fewClouds.png">
+      <palette disableTransparency="false">
+            <color>FFFFFF</color>
+            <color>AAAAAA</color>
+            <color>555555</color>
+            <color>000000</color>
+            <color>FFAA00</color>
+      </palette>
+    </bitmap>
+    <bitmap id="showerRain" filename="showerRain.png">
+      <palette disableTransparency="false">
+            <color>FFFFFF</color>
+            <color>AAAAAA</color>
+            <color>555555</color>
+            <color>000000</color>
+            <color>7777FF</color>
+      </palette>
+    </bitmap>
+    <bitmap id="rain" filename="rain.png">
+      <palette disableTransparency="false">
+            <color>FFFFFF</color>
+            <color>AAAAAA</color>
+            <color>555555</color>
+            <color>000000</color>
+            <color>7777FF</color>
+      </palette>
+    </bitmap>
+    <bitmap id="snow" filename="snow.png">
+      <palette disableTransparency="false">
+            <color>FFFFFF</color>
+            <color>000000</color>
+      </palette>
+    </bitmap>
+    <bitmap id="sun" filename="sunny.png">
+      <palette disableTransparency="false">
+            <color>FFFFFF</color>
+            <color>AAAAAA</color>
+            <color>555555</color>
+            <color>000000</color>
+            <color>FFAA00</color>
+      </palette>
+    </bitmap>
+    <bitmap id="thunderstorm" filename="thunderstorm.png">
+      <palette disableTransparency="false">
+            <color>FFFFFF</color>
+            <color>AAAAAA</color>
+            <color>555555</color>
+            <color>000000</color>
+            <color>7777FF</color>
+      </palette>
+    </bitmap>
+    <bitmap id="fog" filename="fog.png">
+      <palette disableTransparency="false">
+            <color>FFFFFF</color>
+            <color>AAAAAA</color>
+            <color>555555</color>
+            <color>000000</color>
+      </palette>
+    </bitmap>
 </drawables>

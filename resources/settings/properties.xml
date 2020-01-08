@@ -6,4 +6,7 @@
     <property id="HRPeriod" type="number">3600</property>
     <property id="HRStyle" type="number">2</property>
     <property id="BatteryLevelStyle" type="number">0</property>
+    <property id="WeatherStyle" type="number">2</property>
+    <property id="WindSpeedUnits" type="number">0</property>
+    <property id="DisplaySeconds" type="boolean">true</property>
 </properties>

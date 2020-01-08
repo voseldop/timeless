@@ -124,17 +124,19 @@ class timelessApp extends App.AppBase {
         var minutes = clockTime.min;
         var timeString = Lang.format(timeFormat, [hours, minutes.format("%02d")]);
 
-        System.println(data);
-
         if (data instanceof Dictionary && (data.get("error") == null || data.get("error") == false)) {
           synchronizeData("temperature", data.get("current"));
           synchronizeData("weatherCode", data.get("current"));
           synchronizeData("forecastTemp", data.get("forecast"));
           synchronizeData("forecastWeather", data.get("forecast"));
+          synchronizeData("forecastWindSpeed", data.get("forecast"));
+          synchronizeData("forecastWindDirection", data.get("forecast"));
           synchronizeData("forecastTime", data.get("forecast"));
           synchronizeData("forecastTimestamp", data.get("forecast"));
           synchronizeData("currentTimestap", data.get("current"));
           synchronizeData("currentLocation", data.get("current"));
+          synchronizeData("currentWindSpeed", data.get("current"));
+          synchronizeData("currentWindDirection", data.get("current"));
           synchronizeData("lattitude", data.get("position"));
           synchronizeData("longitude", data.get("position"));
         } else {
