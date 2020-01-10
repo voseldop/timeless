@@ -78,11 +78,11 @@ class Weather extends Ui.Drawable {
 
       radius = (radius - (image.getWidth() > image.getWidth() ? image.getWidth() : image.getHeight())) / 2;
 
-      iconX = iconX + (radius + 5) * Toybox.Math.sin(Toybox.Math.PI * (segment) / 6) - image.getWidth()/2;
-      iconY = iconY - (radius - 5) * Toybox.Math.cos(Toybox.Math.PI * (segment) / 6) - image.getHeight()/2;
+      iconX = iconX + (radius + 10) * Toybox.Math.sin(Toybox.Math.PI * (segment) / 6) - image.getWidth()/2;
+      iconY = iconY - (radius + 5) * Toybox.Math.cos(Toybox.Math.PI * (segment) / 6) - image.getHeight()/2;
 
-      textPosX = dc.getWidth() / 2 + radius * Toybox.Math.sin(Toybox.Math.PI * (segment - 0.5) / 6);
-      textPosY = dc.getHeight() / 2 - radius * Toybox.Math.cos(Toybox.Math.PI * (segment - 0.5) / 6);
+      textPosX = dc.getWidth() / 2 + radius * Toybox.Math.sin(Toybox.Math.PI * (segment - 0.7) / 6);
+      textPosY = dc.getHeight() / 2 - radius * Toybox.Math.cos(Toybox.Math.PI * (segment - 0.7) / 6);
 
       dc.drawBitmap(iconX, iconY, image);
       dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
@@ -131,7 +131,7 @@ class Weather extends Ui.Drawable {
          if (forecastTime != null && forecastTemp != null && forecastWeather != null && weatherStyle > 0) {
            for (var segment = 0; segment < 4; segment +=1) {
               var time = new Time.Moment(forecastTime[segment]);
-              var hour = Time.Gregorian.info(time, Time.FORMAT_MEDIUM).hour;
+              var hour = Time.Gregorian.utcInfo(time, Time.FORMAT_MEDIUM).hour;
               var weather = forecastWeather[segment];
               var temperature = System.getDeviceSettings().temperatureUnits == System.UNIT_METRIC ? forecastTemp[segment] : toImperial(forecastTemp[segment]);
               var speed = forecastWindSpeed[segment];
