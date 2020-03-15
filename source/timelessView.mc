@@ -153,6 +153,9 @@ class timelessView extends Ui.WatchFace {
       } else {
         secondsView.setText("");
       }
+
+      var weatherView = View.findDrawableById("Weather");
+      weatherView.glanceMode = !lowPower;
       // Call the parent onUpdate function to redraw the layout
       View.onUpdate(dc);
       refreshWeather();
