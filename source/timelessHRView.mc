@@ -1,6 +1,7 @@
 using Toybox.WatchUi as Ui;
 using Toybox.Application as App;
 using Toybox.Graphics as Gfx;
+using Toybox.System as Sys;
 
 class HeartRate extends Ui.Drawable {
 
@@ -38,6 +39,10 @@ class HeartRate extends Ui.Drawable {
   }
 
     function draw(dc) {
+
+        if (Sys.getDeviceSettings().requiresBurnInProtection && timelessView.isLowPower()) {
+           return;
+         }
         // Set the background color then call to clear the screen
         var sensorIter = getIterator();
 

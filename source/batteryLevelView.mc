@@ -1,6 +1,7 @@
 using Toybox.WatchUi as Ui;
 using Toybox.Application as App;
 using Toybox.Graphics as Gfx;
+using Toybox.System as Sys;
 
 class Battery extends timelessWidget {
 
@@ -19,6 +20,10 @@ class Battery extends timelessWidget {
     }
 
     function draw(dc) {
+        if (Sys.getDeviceSettings().requiresBurnInProtection && timelessView.isLowPower()) {
+           return;
+         }
+
         level = System.getSystemStats().battery;
         var style = App.getApp().getProperty("BatteryLevelStyle");
         if (style == 2 || (style == 1 && level < 20)) {

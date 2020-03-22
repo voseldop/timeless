@@ -20,10 +20,9 @@ class Weather extends Ui.Drawable {
           "Fog" => Rez.Drawables.fog
         };
 
+    const large = Ui.loadResource(Rez.Fonts.id_large);
     const freesans = Ui.loadResource(Rez.Fonts.id_freesans);
     const freesans_outline = Ui.loadResource(Rez.Fonts.id_freesans_outline);
-
-    var glanceMode = false;
 
     function initialize() {
         var dictionary = {
@@ -128,6 +127,10 @@ class Weather extends Ui.Drawable {
          var currentWindSpeed = App.getApp().getProperty("currentWindSpeed");
          var direction = App.getApp().getProperty("currentWindDirection");
 
+         if (Sys.getDeviceSettings().requiresBurnInProtection && timelessView.isLowPower()) {
+           return;
+         }
+
          if (forecastTime != null && forecastTemp != null && forecastWeather != null && forecastWindSpeed !=null && forecastWindDirection != null) {
            for (var segment = 0; segment < 4; segment +=1) {
               var time = new Time.Moment(forecastTime[segment]);
@@ -138,15 +141,15 @@ class Weather extends Ui.Drawable {
               var direction = forecastWindDirection[segment];
 
               temperature = weatherStyle == 0 ? null : temperature;
-              temperature = weatherStyle == 1 && !glanceMode ? null : temperature;
+              temperature = weatherStyle == 1 && isLowPower() ? null : temperature;
 
               weather = weatherStyle == 0 ? null : weather;
-              weather = weatherStyle == 1 && !glanceMode ? null : weather;
+              weather = weatherStyle == 1 && isLowPower() ? null : weather;
 
               speed = windStyle == 0 ? null : speed;
-              speed = windStyle == 1 && !glanceMode ? null : speed;
+              speed = windStyle == 1 && isLowPower() ? null : speed;
               direction = windStyle == 0 ? null : direction;
-              direction = windStyle == 1 && !glanceMode ? null : direction;
+              direction = windStyle == 1 && isLowPower() ? null : direction;
 
               if (Time.now().subtract(new Time.Duration(Time.Gregorian.SECONDS_PER_HOUR * 3)).lessThan(time)) {
                     drawForecastSegment(temperature, weather, hour, speed, direction, dc);
@@ -154,9 +157,9 @@ class Weather extends Ui.Drawable {
             }
          }
 
-         if (currentWindSpeed != null && direction != null && (windStyle > 1) || (windStyle == 1 && glanceMode)) {
+         if (currentWindSpeed != null && direction != null && (windStyle > 1) || (windStyle == 1 && isLowPower())) {
             var textPosX = dc.getWidth() / 2 - 10;
-            var textPosY = dc.getHeight() / 2 - 30;
+            var textPosY = dc.getHeight() / 2 - Gfx.getFontHeight(large)/2 - Gfx.getFontHeight(Gfx.FONT_XTINY)/2;
 
             var pts = [[textPosX - 8 * Toybox.Math.sin(Toybox.Math.PI * direction / 180), textPosY + 8 * Toybox.Math.cos(Toybox.Math.PI * direction / 180)],
                  [textPosX + 8 * Toybox.Math.sin(Toybox.Math.PI * (direction - 30) / 180), textPosY - 8 * Toybox.Math.cos(Toybox.Math.PI * (direction - 30) / 180)],
@@ -166,7 +169,7 @@ class Weather extends Ui.Drawable {
             dc.fillPolygon(pts);
 
             textPosX = dc.getWidth() / 2 + 10;
-            textPosY = dc.getHeight() / 2 - 30;
+            textPosY = dc.getHeight() / 2 - Gfx.getFontHeight(large)/2 - Gfx.getFontHeight(Gfx.FONT_XTINY)/2;
             dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
             dc.drawText(textPosX, textPosY, freesans_outline, formatWindSpeed(currentWindSpeed), Gfx.TEXT_JUSTIFY_CENTER + Gfx.TEXT_JUSTIFY_VCENTER);
             dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);

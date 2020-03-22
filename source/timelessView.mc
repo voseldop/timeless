@@ -15,11 +15,16 @@ class timelessView extends Ui.WatchFace {
     const METRIC_TEMPERATURE_TMPL = "$1$°C";
     const IMPERIAL_TEMPERATURE_TMPL = "$1$°F";
     const large = Ui.loadResource(Rez.Fonts.id_large);
+    const large_thin = Ui.loadResource(Rez.Fonts.id_large_thin);
     const symbol = Ui.loadResource(Rez.Fonts.id_symbol);
     const xtiny = Ui.loadResource(Rez.Fonts.id_xtiny);
 
     var tempView;
-    var lowPower = true;
+    static var lowPower = true;
+
+    static function isLowPower() {
+      return lowPower;
+    }
 
     function initialize() {
         WatchFace.initialize();
@@ -34,8 +39,9 @@ class timelessView extends Ui.WatchFace {
         var weatherView = View.findDrawableById("WeatherLabel");
         tempView = View.findDrawableById("TemperatureLabel");
         var notificationsView = View.findDrawableById("NotificationLabel");
+        var alarmsView = View.findDrawableById("AlarmsLabel");
         var updateView = View.findDrawableById("UpdateTimeLabel");
-        var timeString = "20:00";
+        var timeString = "22:22";
         var locationView = View.findDrawableById("LocationLabel");
         var connectivityView = View.findDrawableById("ConnectivityLabel");
         var secondsView = View.findDrawableById("SecondsLabel");
@@ -43,10 +49,11 @@ class timelessView extends Ui.WatchFace {
 
         dateView.setLocation(timeView.locX - 25, timeView.locY - Gfx.getFontHeight(Gfx.FONT_XTINY) / 2);
         weatherView.setLocation(timeView.locX + 25, timeView.locY - Gfx.getFontHeight(Gfx.FONT_XTINY) /2);
-        updateView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, timeView.locY + Gfx.getFontHeight(symbol));
         locationView.setLocation(locationView.locX, timeView.locY + Gfx.getFontHeight(large));
+        updateView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, locationView.locY + Gfx.getFontHeight(Gfx.FONT_XTINY));
         connectivityView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, timeView.locY);
-        notificationsView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, timeView.locY + Gfx.getFontHeight(symbol) +  Gfx.getFontHeight(xtiny));
+        notificationsView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, connectivityView.locY + Gfx.getFontHeight(symbol));
+        alarmsView.setLocation(notificationsView.locX, notificationsView.locY + Gfx.getFontHeight(xtiny) * 2);
         secondsView.setLocation(timeView.locX + dc.getTextDimensions(timeString, large)[0] / 2,
                                 timeView.locY + dc.getTextDimensions(timeString, large)[1] - dc.getTextDimensions(timeString, xtiny)[1] / 2);
         dayNightView.setLocation(timeView.locX + dc.getTextDimensions(timeString, large)[0] / 2,
@@ -88,6 +95,7 @@ class timelessView extends Ui.WatchFace {
       var updateView = View.findDrawableById("UpdateTimeLabel");
       var secondsView = View.findDrawableById("SecondsLabel");
       var dayNigthView = View.findDrawableById("DayNightLabel");
+      var weatherView = View.findDrawableById("WeatherLabel");
       var secondsAllowed = App.getApp().getProperty("DisplaySeconds");
 
       // Update time
@@ -109,7 +117,6 @@ class timelessView extends Ui.WatchFace {
       locationView.setText(location);
 
       if (Toybox.System has :ServiceDelegate) {
-           var weatherView = View.findDrawableById("WeatherLabel");
            var weatherCode = App.getApp().getProperty("weatherCode");
            var temperature = formatTemperature(App.getApp().getProperty("temperature"));
            weatherView.setText(temperature);
@@ -145,6 +152,10 @@ class timelessView extends Ui.WatchFace {
       var notificationText = Lang.format("✉$1$", [Sys.getDeviceSettings().notificationCount.format("%i")]);
       notificationsView.setText(notificationText);
 
+      var alarmsView = View.findDrawableById("AlarmsLabel");
+      var alarmsText = Lang.format("🔔$1$", [Sys.getDeviceSettings().alarmCount.format("%i")]);
+      alarmsView.setText(alarmsText);
+
       if (partialUpdatesAllowed && secondsAllowed == true) {
         onPartialUpdate(dc);
       } else if (!lowPower && secondsAllowed == true) {
@@ -153,9 +164,20 @@ class timelessView extends Ui.WatchFace {
       } else {
         secondsView.setText("");
       }
-
-      var weatherView = View.findDrawableById("Weather");
-      weatherView.glanceMode = !lowPower;
+      if (Sys.getDeviceSettings().requiresBurnInProtection && isLowPower()) {
+        locationView.setText("");
+        connectivityView.setText("");
+        alarmsView.setText("");
+        notificationsView.setText("");
+        updateView.setText("");
+        dateView.setText("");
+        weatherView.setText("");
+        timeView.setLocation(dc.getWidth()/2, dc.getHeight()/2 - ((clockTime.min % 2)) * Gfx.getFontHeight(large));
+        timeView.setFont(large_thin);
+      } else {
+        timeView.setLocation(dc.getWidth()/2, dc.getHeight()/2 - Gfx.getFontHeight(large) / 2);
+        timeView.setFont(large);
+      }
       // Call the parent onUpdate function to redraw the layout
       View.onUpdate(dc);
       refreshWeather();

@@ -3,6 +3,7 @@ using Toybox.Application as App;
 using Toybox.Graphics as Gfx;
 using Toybox.ActivityMonitor as Monitor;
 using Toybox.Lang as Lang;
+using Toybox.System as Sys;
 
 class Steps extends timelessWidget {
     function initialize() {
@@ -13,6 +14,9 @@ class Steps extends timelessWidget {
     }
 
     function draw(dc) {
+        if (Sys.getDeviceSettings().requiresBurnInProtection && timelessView.isLowPower()) {
+           return;
+         }
         var steps = Monitor.getInfo().steps.format("%d");
         var floorsClimbed = "";
         var template = "👣$1$";
