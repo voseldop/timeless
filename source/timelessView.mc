@@ -15,7 +15,7 @@ class timelessView extends Ui.WatchFace {
     const METRIC_TEMPERATURE_TMPL = "$1$°C";
     const IMPERIAL_TEMPERATURE_TMPL = "$1$°F";
     const large = Ui.loadResource(Rez.Fonts.id_large);
-    const large_thin = Ui.loadResource(Rez.Fonts.id_large_thin);
+    var large_thin;
     const symbol = Ui.loadResource(Rez.Fonts.id_symbol);
     const xtiny = Ui.loadResource(Rez.Fonts.id_xtiny);
 
@@ -29,6 +29,9 @@ class timelessView extends Ui.WatchFace {
     function initialize() {
         WatchFace.initialize();
         partialUpdatesAllowed = ( Toybox.WatchUi.WatchFace has :onPartialUpdate );
+        if (Rez.Fonts has :id_large_thin) {
+          large_thin = Ui.loadResource(Rez.Fonts.id_large_thin);
+        }
     }
 
     // Load your resources here
@@ -48,16 +51,32 @@ class timelessView extends Ui.WatchFace {
         var dayNightView = View.findDrawableById("DayNightLabel");
 
         dateView.setLocation(timeView.locX - 25, timeView.locY - Gfx.getFontHeight(Gfx.FONT_XTINY) / 2);
-        weatherView.setLocation(timeView.locX + 25, timeView.locY - Gfx.getFontHeight(Gfx.FONT_XTINY) /2);
-        locationView.setLocation(locationView.locX, timeView.locY + Gfx.getFontHeight(large));
-        updateView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, locationView.locY + Gfx.getFontHeight(Gfx.FONT_XTINY));
-        connectivityView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, timeView.locY);
-        notificationsView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, connectivityView.locY + Gfx.getFontHeight(symbol));
-        alarmsView.setLocation(notificationsView.locX, notificationsView.locY + Gfx.getFontHeight(xtiny) * 2);
-        secondsView.setLocation(timeView.locX + dc.getTextDimensions(timeString, large)[0] / 2,
-                                timeView.locY + dc.getTextDimensions(timeString, large)[1] - dc.getTextDimensions(timeString, xtiny)[1] / 2);
-        dayNightView.setLocation(timeView.locX + dc.getTextDimensions(timeString, large)[0] / 2,
-                                timeView.locY - 5);
+        if (weatherView != null) {
+          weatherView.setLocation(timeView.locX + 25, timeView.locY - Gfx.getFontHeight(Gfx.FONT_XTINY) /2);
+        }
+        if (locationView != null) {
+          locationView.setLocation(locationView.locX, timeView.locY + Gfx.getFontHeight(large));
+        }
+        if (updateView != null) {
+          updateView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, timeView.locY + Gfx.getFontHeight(large) + Gfx.getFontHeight(Gfx.FONT_XTINY));
+        }
+        if (connectivityView != null) {
+          connectivityView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, timeView.locY);
+        }
+        if (notificationsView != null) {
+          notificationsView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, timeView.locY + Gfx.getFontHeight(symbol));
+        }
+        if (alarmsView != null) {
+          alarmsView.setLocation(notificationsView.locX, timeView.locY + Gfx.getFontHeight(symbol) + Gfx.getFontHeight(xtiny) * 2);
+        }
+        if (secondsView != null) {
+          secondsView.setLocation(timeView.locX + dc.getTextDimensions(timeString, large)[0] / 2,
+                                  timeView.locY + dc.getTextDimensions(timeString, large)[1] - dc.getTextDimensions(timeString, xtiny)[1] / 2);
+        }
+        if (dayNightView != null) {
+          dayNightView.setLocation(timeView.locX + dc.getTextDimensions(timeString, large)[0] / 2,
+                                   timeView.locY - 5);
+        }
     }
 
     // Called when this View is brought to the foreground. Restore
@@ -114,7 +133,9 @@ class timelessView extends Ui.WatchFace {
         location = "";
       }
 
-      locationView.setText(location);
+      if (locationView != null) {
+        locationView.setText(location);
+      }
 
       if (Toybox.System has :ServiceDelegate) {
            var weatherCode = App.getApp().getProperty("weatherCode");
@@ -138,7 +159,9 @@ class timelessView extends Ui.WatchFace {
           timeString = Lang.format("$1$:$2$", [timeStamp.hour % 12, timeStamp.min.format("%02d")]);
         }
       }
-      updateView.setText(timeString);
+      if (updateView != null) {
+        updateView.setText(timeString);
+      }
 
       if (Sys.getDeviceSettings().is24Hour) {
         dayNigthView.setText("");
@@ -164,7 +187,7 @@ class timelessView extends Ui.WatchFace {
       } else {
         secondsView.setText("");
       }
-      if (Sys.getDeviceSettings().requiresBurnInProtection && isLowPower()) {
+      if (Sys.getDeviceSettings() has :requiresBurnInProtection && Sys.getDeviceSettings().requiresBurnInProtection && isLowPower()) {
         locationView.setText("");
         connectivityView.setText("");
         alarmsView.setText("");

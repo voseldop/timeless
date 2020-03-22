@@ -127,7 +127,7 @@ class Weather extends Ui.Drawable {
          var currentWindSpeed = App.getApp().getProperty("currentWindSpeed");
          var direction = App.getApp().getProperty("currentWindDirection");
 
-         if (Sys.getDeviceSettings().requiresBurnInProtection && timelessView.isLowPower()) {
+         if (Sys.getDeviceSettings() has :requiresBurnInProtection && Sys.getDeviceSettings().requiresBurnInProtection && timelessView.isLowPower()) {
            return;
          }
 

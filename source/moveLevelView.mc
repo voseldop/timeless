@@ -19,7 +19,7 @@ class Move extends timelessWidget {
 
     function draw(dc) {
 
-        if (Sys.getDeviceSettings().requiresBurnInProtection && timelessView.isLowPower()) {
+        if (Sys.getDeviceSettings() has :requiresBurnInProtection && Sys.getDeviceSettings().requiresBurnInProtection && timelessView.isLowPower()) {
            return;
          }
 

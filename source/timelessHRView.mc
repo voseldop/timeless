@@ -40,7 +40,7 @@ class HeartRate extends Ui.Drawable {
 
     function draw(dc) {
 
-        if (Sys.getDeviceSettings().requiresBurnInProtection && timelessView.isLowPower()) {
+        if (Sys.getDeviceSettings() has :requiresBurnInProtection && Sys.getDeviceSettings().requiresBurnInProtection && timelessView.isLowPower()) {
            return;
          }
         // Set the background color then call to clear the screen

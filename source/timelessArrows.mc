@@ -14,7 +14,7 @@ class Arrows extends Ui.Drawable {
     }
 
     function draw(dc) {
-      if (Sys.getDeviceSettings().requiresBurnInProtection && timelessView.isLowPower()) {
+      if (Sys.getDeviceSettings() has :requiresBurnInProtection && Sys.getDeviceSettings().requiresBurnInProtection && timelessView.isLowPower()) {
         return;
       }
 

@@ -2,19 +2,13 @@
 	<layout id="WatchFace">
 	  <drawable class="Background" />
 	  <drawable class="Arrows" />
-	  <drawable class="Weather"></drawable>
 	  <drawable class="Move"></drawable>
 		<drawable class="Battery"></drawable>
 		<drawable class="Steps"></drawable>
-		<drawable class="HeartRate"></drawable>  
-		<!--  <drawable class="Calories"></drawable>   		-->
 		<label id="TimeLabel" x="center" y="center" font="@Fonts.id_large" justification="Gfx.TEXT_JUSTIFY_CENTER" color="Gfx.COLOR_WHITE" />
 		<label id="DayNightLabel" y="center" x="center" color="Gfx.COLOR_WHITE" font="Gfx.FONT_XTINY" justification="Gfx.TEXT_JUSTIFY_LEFT" />
 		<label id="SecondsLabel" y="center" x="center" color="Gfx.COLOR_WHITE" font="Gfx.FONT_XTINY" justification="Gfx.TEXT_JUSTIFY_LEFT" />
 		<label id="DateLabel" y="center" x="center" color="Gfx.COLOR_WHITE" font="Gfx.FONT_XTINY" justification="Gfx.TEXT_JUSTIFY_RIGHT | Gfx.TEXT_JUSTIFY_VCENTER" />
-		<label id="LocationLabel" y="center" x="center" color="Gfx.COLOR_WHITE" font="Gfx.FONT_XTINY" justification="Gfx.TEXT_JUSTIFY_CENTER" />
-		<label id="WeatherLabel" y="center" x="center" color="Gfx.COLOR_WHITE" font="Gfx.FONT_XTINY" justification="Gfx.TEXT_JUSTIFY_LEFT | Gfx.TEXT_JUSTIFY_VCENTER" />
-		<label id="UpdateTimeLabel" y="center" x="center" color="Gfx.COLOR_WHITE" font="@Fonts.id_xtiny" justification="Gfx.TEXT_JUSTIFY_RIGHT" />
 		<label id="ConnectivityLabel" y="center" x="center" color="Gfx.COLOR_WHITE" font="@Fonts.id_symbol" justification="Gfx.TEXT_JUSTIFY_RIGHT" />
 		<label id="NotificationLabel" y="center" x="center" color="Gfx.COLOR_WHITE" font="@Fonts.id_symbol" justification="Gfx.TEXT_JUSTIFY_RIGHT" />
 		<label id="AlarmsLabel" y="center" x="center" color="Gfx.COLOR_WHITE" font="@Fonts.id_symbol" justification="Gfx.TEXT_JUSTIFY_RIGHT" />
