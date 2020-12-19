@@ -74,9 +74,9 @@ class Weather extends Ui.Drawable {
       if (weather != null && temperature != null) {
         var rez = icons.get(weather);
         var image = Ui.loadResource(rez);
-        var dimensions = dc.getTextDimensions("000", freesans);
+        var dimensions = dc.getTextDimensions(text, freesans);
 
-        var textPosX = dc.getWidth() / 2 + (radius - dimensions[0]) * Toybox.Math.sin(Toybox.Math.PI * (segment - 0.7) / 6);
+        var textPosX = dc.getWidth() / 2 + (radius - dimensions[1]) * Toybox.Math.sin(Toybox.Math.PI * (segment - 0.7) / 6);
         var textPosY = dc.getHeight() / 2 - (radius - dimensions[1]) * Toybox.Math.cos(Toybox.Math.PI * (segment - 0.7) / 6);
 
         var iconX = dc.getWidth() / 2 + (radius - image.getWidth()/4) * Toybox.Math.sin(Toybox.Math.PI * (segment) / 6) - image.getWidth()/2;
@@ -141,15 +141,15 @@ class Weather extends Ui.Drawable {
               var direction = forecastWindDirection[segment];
 
               temperature = weatherStyle == 0 ? null : temperature;
-              temperature = weatherStyle == 1 && isLowPower() ? null : temperature;
+              temperature = weatherStyle == 1 && timelessView.isLowPower() ? null : temperature;
 
               weather = weatherStyle == 0 ? null : weather;
-              weather = weatherStyle == 1 && isLowPower() ? null : weather;
+              weather = weatherStyle == 1 && timelessView.isLowPower() ? null : weather;
 
               speed = windStyle == 0 ? null : speed;
-              speed = windStyle == 1 && isLowPower() ? null : speed;
+              speed = windStyle == 1 && timelessView.isLowPower() ? null : speed;
               direction = windStyle == 0 ? null : direction;
-              direction = windStyle == 1 && isLowPower() ? null : direction;
+              direction = windStyle == 1 && timelessView.isLowPower() ? null : direction;
 
               if (Time.now().subtract(new Time.Duration(Time.Gregorian.SECONDS_PER_HOUR * 3)).lessThan(time)) {
                     drawForecastSegment(temperature, weather, hour, speed, direction, dc);
@@ -157,7 +157,7 @@ class Weather extends Ui.Drawable {
             }
          }
 
-         if (currentWindSpeed != null && direction != null && (windStyle > 1) || (windStyle == 1 && isLowPower())) {
+         if (currentWindSpeed != null && direction != null && ((windStyle > 1) || (windStyle == 1 && !timelessView.isLowPower()))) {
             var textPosX = dc.getWidth() / 2 - 10;
             var textPosY = dc.getHeight() / 2 - Gfx.getFontHeight(large)/2 - Gfx.getFontHeight(Gfx.FONT_XTINY)/2;
 
