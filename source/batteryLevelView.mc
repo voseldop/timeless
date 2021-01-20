@@ -39,7 +39,7 @@ class Battery extends timelessWidget {
         timelessWidget.draw(dc);
         dc.setColor(txtColor, Gfx.COLOR_TRANSPARENT);
         var radius = dc.getWidth() > dc.getHeight() ? dc.getHeight() : dc.getWidth();
-        dc.drawText(dc.getWidth()/2 + 8 * radius/32, dc.getHeight()/2, symbols, "🔋", Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(dc.getWidth()/2 + 8 * radius/32, dc.getHeight()/2 - dc.getTextDimensions("🔋", symbols)[1], symbols, "🔋", Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
     }
 
 }

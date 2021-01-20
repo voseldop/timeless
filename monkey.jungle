@@ -1,2 +1,7 @@
 project.manifest = manifest.xml
-
+venu.resourcePath = $(base.resourcePath); resources-round-large
+fenix6.resourcePath = $(base.resourcePath); resources-round-medium
+fenix6pro.resourcePath = $(base.resourcePath); resources-round-medium
+fenix6s.resourcePath = $(base.resourcePath); resources-round-medium
+fenix6spro.resourcePath = $(base.resourcePath); resources-round-medium
+fenix6xpro.resourcePath = $(base.resourcePath); resources-round-medium

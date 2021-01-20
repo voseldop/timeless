@@ -2,10 +2,12 @@ using Toybox.WatchUi as Ui;
 using Toybox.Application as App;
 using Toybox.Graphics as Gfx;
 using Toybox.System as Sys;
+using Toybox.Time as Time;
 
 class HeartRate extends Ui.Drawable {
 
     var fgColor = Gfx.COLOR_WHITE;
+    var durationObj = null;
 
     function initialize() {
         var dictionary = {
@@ -28,7 +30,8 @@ class HeartRate extends Ui.Drawable {
             if (style == 1) {
               return Toybox.SensorHistory.getHeartRateHistory({:period => 1});
             } else if (style == 2 && duration instanceof Toybox.Lang.Number) {
-                return Toybox.SensorHistory.getHeartRateHistory({:period => new Time.Duration(duration)});
+                durationObj = new Time.Duration(duration);
+                return Toybox.SensorHistory.getHeartRateHistory({:period => durationObj});
             }
         }
       }

@@ -71,12 +71,13 @@ class timelessView extends Ui.WatchFace {
         }
         if (secondsView != null) {
           secondsView.setLocation(timeView.locX + dc.getTextDimensions(timeString, large)[0] / 2,
-                                  timeView.locY + dc.getTextDimensions(timeString, large)[1] - dc.getTextDimensions(timeString, xtiny)[1] / 2);
+                                  timeView.locY + dc.getTextDimensions(timeString, large)[1] /2 );
         }
         if (dayNightView != null) {
           dayNightView.setLocation(timeView.locX + dc.getTextDimensions(timeString, large)[0] / 2,
                                    timeView.locY - 5);
         }
+        timeView.setFont(large);
     }
 
     // Called when this View is brought to the foreground. Restore

@@ -64,18 +64,41 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
     function loop() {
       if (state == IDLE) {
         state = CURRENT_WEATHER;
+        Communications.registerForPhoneAppMessages(method(:phoneMessage));
         loop();
       } else if (state == CURRENT_WEATHER) {
         makeCurrentWeatherRequest();
       } else if (state == FORECAST_WEATHER) {
         makeForecastWeatherRequest();
       } else if (state == DONE) {
+        Communications.registerForPhoneAppMessages(null);
         Background.exit({  "current" => currentWeather,
                                "forecast" => forecastWeather,
                                "position" => {
                                "lattitude" => lattitude,
                                "longitude" => longitude}
                          });
+      }
+    }
+
+    function phoneMessage(message) {
+      var data = message.data;
+      if (data != null) {
+        lattitude = data.get("latitude");
+        longitude = data.get("longitude");
+        var currentData = data.get("current");
+        if (currentData != null) {
+           synchronizeWeather( currentData);
+           var forecastData = data.get("forecast");
+           if (forecastData != null) {
+             forecastWeatherCallback(200, forecastData);
+             state = DONE;
+             System.println("Phone message completed ");
+           }
+        }
+        System.println("Phone message: " + data);
+      } else {
+        System.println("Phone message empty");
       }
     }
 
@@ -159,14 +182,7 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
             method(:currentWeatherCallback));
     }
 
-    function currentWeatherCallback(responseCode, data) {
-      // Do stuff with the response data here and send the data
-      // payload back to the app that originated the background
-      // process.
-
-      if (responseCode == 200) {
-        System.println("Current weather response code " + responseCode + " data " + data);
-
+    function synchronizeWeather(data) {
         var temperature = data.get("main").get("temp");
         var weatherCode = data.get("weather")[0].get("icon");
         var timeFormat = "$1$:$2$";
@@ -184,6 +200,17 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
                            "currentWindDirection" => windDirection,
                            "timestamp" => timeStamp,
                            "currentLocation" => location };
+    }
+
+    function currentWeatherCallback(responseCode, data) {
+      // Do stuff with the response data here and send the data
+      // payload back to the app that originated the background
+      // process.
+
+      if (responseCode == 200) {
+        System.println("Current weather response code " + responseCode + " data " + data);
+
+        synchronizeWeather(data);
         state = FORECAST_WEATHER;
 
         loop();

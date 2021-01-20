@@ -4,13 +4,13 @@ using Toybox.System as Sys;
 using Toybox.Background;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
+using Toybox.Communications;
 
 class timelessApp extends App.AppBase {
 
     function initialize() {
         AppBase.initialize();
     }
-
 
     // onStart() is called on application start up
     function onStart(state) {

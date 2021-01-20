@@ -1,0 +1,4 @@
+<resources>
+<font id="id_large" filename="roboto.fnt" filter="0123456789:"/>
+<font id="id_large_thin" filename="roboto_hollow.fnt" filter="0123456789:"/>
+</resources>
