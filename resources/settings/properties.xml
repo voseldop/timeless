@@ -10,4 +10,5 @@
     <property id="WindStyle" type="number">2</property>
     <property id="WindSpeedUnits" type="number">0</property>
     <property id="DisplaySeconds" type="boolean">true</property>
+    <property id="ArrowStyle" type="number">1</property>
 </properties>

@@ -18,6 +18,12 @@ class Arrows extends Ui.Drawable {
         return;
       }
 
+      var arrowStyle = App.getApp().getProperty("ArrowStyle");
+
+      if (arrowStyle == 0) {
+        return;
+      }
+
       var radius = dc.getWidth() > dc.getHeight() ? dc.getHeight() : dc.getWidth();
       var clockTime = Sys.getClockTime();
       var hours = clockTime.hour;

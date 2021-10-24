@@ -62,4 +62,10 @@
         <settingConfig type="boolean" />
     </setting>
     
+    <setting propertyKey="@Properties.ArrowStyle" title="@Strings.DisplayArrowTitle">
+        <settingConfig type="list" >
+          <listEntry value="0">@Strings.Disabled</listEntry>
+          <listEntry value="1">@Strings.Simple</listEntry>
+        </settingConfig>
+    </setting>
 </settings>

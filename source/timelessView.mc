@@ -17,7 +17,8 @@ class timelessView extends Ui.WatchFace {
     const large = Ui.loadResource(Rez.Fonts.id_large);
     var large_thin;
     const symbol = Ui.loadResource(Rez.Fonts.id_symbol);
-    const xtiny = Ui.loadResource(Rez.Fonts.id_xtiny);
+    const xtiny = Ui.loadResource(Rez.Fonts.id_freesans);
+    const xxtiny = Ui.loadResource(Rez.Fonts.id_xtiny);
 
     var tempView;
     static var lowPower = true;
@@ -58,7 +59,8 @@ class timelessView extends Ui.WatchFace {
           locationView.setLocation(locationView.locX, timeView.locY + Gfx.getFontHeight(large));
         }
         if (updateView != null) {
-          updateView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, timeView.locY + Gfx.getFontHeight(large) + Gfx.getFontHeight(Gfx.FONT_XTINY));
+          updateView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2,
+                                 timeView.locY + Gfx.getFontHeight(large) + Gfx.getFontHeight(xtiny) + Gfx.getFontHeight(xxtiny));
         }
         if (connectivityView != null) {
           connectivityView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, timeView.locY);
@@ -67,7 +69,7 @@ class timelessView extends Ui.WatchFace {
           notificationsView.setLocation(timeView.locX - dc.getTextDimensions(timeString, large)[0] / 2, timeView.locY + Gfx.getFontHeight(symbol));
         }
         if (alarmsView != null) {
-          alarmsView.setLocation(notificationsView.locX, timeView.locY + Gfx.getFontHeight(symbol) + Gfx.getFontHeight(xtiny) * 2);
+          alarmsView.setLocation(notificationsView.locX, timeView.locY + 2 * Gfx.getFontHeight(symbol));
         }
         if (secondsView != null) {
           secondsView.setLocation(timeView.locX + dc.getTextDimensions(timeString, large)[0] / 2,
@@ -88,13 +90,6 @@ class timelessView extends Ui.WatchFace {
 
     function onWeatherData(temperature, weather) {
       tempView.setText(temperature);
-    }
-
-    function drawArrow(dc, radius, rpos, lpos, width) {
-        for (var penWidth = 1; penWidth < width * radius/32; penWidth = penWidth + 1) {
-            dc.setPenWidth(penWidth);
-            dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, (rpos*radius)/32, Gfx.ARC_CLOCKWISE,  90 + 5 * width * (radius/16 - penWidth) - 6 * lpos, 90 - 6 * lpos);
-        }
     }
 
     // Update the view
@@ -169,7 +164,7 @@ class timelessView extends Ui.WatchFace {
       } else {
         dayNigthView.setLocation(timeView.locX + timeView.width / 2,
                                 timeView.locY - 5);
-        dayNigthView.setText(clockTime.hour > 12 ? "pm" : "am");
+        dayNigthView.setText(clockTime.hour >= 12 ? "pm" : "am");
       }
 
       var notificationsView = View.findDrawableById("NotificationLabel");
@@ -196,8 +191,11 @@ class timelessView extends Ui.WatchFace {
         updateView.setText("");
         dateView.setText("");
         weatherView.setText("");
+        //dayNigthView.setText("");
         timeView.setLocation(dc.getWidth()/2, dc.getHeight()/2 - ((clockTime.min % 2)) * Gfx.getFontHeight(large));
         timeView.setFont(large_thin);
+        dayNigthView.setLocation(timeView.locX + timeView.width / 2,
+                                timeView.locY - 5);
       } else {
         timeView.setLocation(dc.getWidth()/2, dc.getHeight()/2 - Gfx.getFontHeight(large) / 2);
         timeView.setFont(large);
@@ -216,7 +214,7 @@ class timelessView extends Ui.WatchFace {
         dc.setColor(dc.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
         dc.fillRectangle(secondsView.locX, secondsView.locY, secondsView.width, secondsView.height);
         dc.setColor(dc.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-        secondsView.setLocation(timeView.locX+timeView.width/2, secondsView.locY);
+        //secondsView.setLocation(timeView.locX+timeView.width/2, secondsView.locY);
         secondsView.setText(clockTime.sec.format("%02d"));
         secondsView.draw(dc);
         dc.clearClip();
@@ -274,7 +272,6 @@ class timelessView extends Ui.WatchFace {
 
     // Terminate any active timers and prepare for slow updates.
     function onEnterSleep() {
-       Sys.println("Enter sleep");
        lowPower = true;
        Ui.requestUpdate();
     }

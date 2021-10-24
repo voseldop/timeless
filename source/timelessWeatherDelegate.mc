@@ -13,18 +13,19 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
     // within this delegate.
     const CURRENT_CITY_WEATHER_URI = "https://api.openweathermap.org/data/2.5/weather?q=$2$&appid=$1$&units=metric";
     const CURRENT_COORD_WEATHER_URI = "https://api.openweathermap.org/data/2.5/weather?lat=$2$&lon=$3$&appid=$1$&units=metric";
-    const FORECAST_CITY_WEATHER_URI = "https://api.openweathermap.org/data/2.5/forecast?q=$2$&appid=$1$&units=metric&cnt=4";
-    const FORECAST_COORD_WEATHER_URI = "https://api.openweathermap.org/data/2.5/forecast?lat=$2$&lon=$3$&appid=$1$&units=metric&cnt=4";
+    const FORECAST_CITY_WEATHER_URI = "https://api.openweathermap.org/data/2.5/forecast?q=$2$&appid=$1$&units=metric&cnt=3";
+    const FORECAST_COORD_WEATHER_URI = "https://api.openweathermap.org/data/2.5/forecast?lat=$2$&lon=$3$&appid=$1$&units=metric&cnt=3";
 
     const TIME_FORMAT = "$1$:$2$";
 
     var currentWeather;
     var forecastWeather;
-
-    var weatherCodes;
-
     var lattitude;
     var longitude;
+    var timestamp;
+    var phoneLattitude;
+    var phoneLongitude;
+    var phoneTimestamp;
     var cityCode;
 
     enum {
@@ -38,30 +39,68 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
 
     function initialize(){
         ServiceDelegate.initialize();
+    }
 
-        weatherCodes = {
-        "01d" => "Sun",
-        "01n" => "Sun",
-        "02d" => "Few Clouds",
-        "02n" => "Few Clouds",
-        "03d" => "Broken Clouds",
-        "03n" => "Broken Clouds",
-        "04d" => "Overcast Clouds",
-        "04n" => "Overcast Clouds",
-        "09d" => "Shower Rain",
-        "09n" => "Shower Rain",
-        "10d" => "Rain",
-        "10n" => "Rain",
-        "11d" => "Thunderstorm",
-        "11n" => "Thunderstorm",
-        "13d" => "Snow",
-        "13n" => "Snow",
-        "50d" => "Fog",
-        "50n" => "Fog"
-        };
+    function fetchGarminWeather() {
+       if (Toybox has :Weather) {
+         var current = Toybox.Weather.getCurrentConditions();
+         var forecast = Toybox.Weather.getHourlyForecast();
+
+         if (current == null || forecast == null) {
+            return false;
+         }
+         currentWeather = { "temperature" => current.temperature,
+                             "currentWeatherCode" => current.condition,
+                             "currentWindSpeed" => current.windSpeed,
+                             "currentWindDirection" => current.windBearing,
+                             "currentTimestamp" => current.observationTime.value(),
+                             "currentLocation" => current.observationLocationName };
+
+         var temperature = [];
+         var windSpeed = [];
+         var windDirection = [];
+         var time = [];
+         var conditions = [];
+
+         for (var i = 0; i < forecast.size(); i++) {
+           temperature.add(forecast[i].temperature);
+           windSpeed.add(forecast[i].windSpeed);
+           windDirection.add(forecast[i].windBearing);
+           time.add(forecast[i].forecastTime.value()+System.getClockTime().timeZoneOffset);
+           conditions.add(forecast[i].condition);
+         }
+
+         forecastWeather = {"forecastTemp" => temperature,
+                           "forecastWeather" => conditions,
+                           "forecastWindSpeed" => windSpeed,
+                           "forecastWindDirection" => windDirection,
+                           "forecastTime" => time,
+                           "forecastTimestamp" => current.observationTime.value(),
+                           "forecastLocation" => current.observationLocationName
+                           };
+         lattitude = current.observationLocationPosition.toDegrees()[0];
+         longitude = current.observationLocationPosition.toDegrees()[1];
+         timestamp = Time.now().value();
+         return true;
+       } else {
+       return false;
+       }
     }
 
     function loop() {
+    if (Toybox has :Weather) {
+       System.println("Checking garmin weather");
+       if (fetchGarminWeather()) {
+         var result = {"current" => currentWeather,
+                       "forecast" => forecastWeather,
+                      "lattitude" => lattitude,
+                      "longitude" => longitude,
+                      "timestamp" => timestamp
+                     };
+         Background.exit(result);
+         return;
+       }
+    }
       if (state == IDLE) {
         state = CURRENT_WEATHER;
         Communications.registerForPhoneAppMessages(method(:phoneMessage));
@@ -72,25 +111,33 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
         makeForecastWeatherRequest();
       } else if (state == DONE) {
         Communications.registerForPhoneAppMessages(null);
-        Background.exit({  "current" => currentWeather,
-                               "forecast" => forecastWeather,
-                               "position" => {
-                               "lattitude" => lattitude,
-                               "longitude" => longitude}
-                         });
+        var result = {"current" => currentWeather,
+                      "forecast" => forecastWeather,
+                      "lattitude" => lattitude,
+                      "longitude" => longitude,
+                      "timestamp" => timestamp,
+                      "phone.lattitude" => phoneLattitude,
+                      "phone.longitude" => phoneLongitude,
+                      "phone.timestamp" => phoneTimestamp
+                     };
+        Background.exit(result);
       }
     }
 
     function phoneMessage(message) {
       var data = message.data;
       if (data != null) {
-        lattitude = data.get("latitude");
-        longitude = data.get("longitude");
+        phoneLattitude = data.get("latitude");
+        phoneLongitude = data.get("longitude");
+        phoneTimestamp = Time.now().value();
+        longitude = phoneLongitude;
+        lattitude = phoneLattitude;
         var currentData = data.get("current");
         if (currentData != null) {
            synchronizeWeather( currentData);
            var forecastData = data.get("forecast");
            if (forecastData != null) {
+             System.println("Forecast from Phone message");
              forecastWeatherCallback(200, forecastData);
              state = DONE;
              System.println("Phone message completed ");
@@ -102,40 +149,57 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
       }
     }
 
+    function getPositionInfo() {
+       var result = new Toybox.Position.Info();
+       var usePosition = App.getApp().getProperty("UsePosition");
+       if (usePosition == null || usePosition == true) {
+         var positionInfo = Position.getInfo().position;
+         var quality = Position.getInfo().accuracy;
+         timestamp = Position.getInfo().when.value();
+         if (positionInfo == null) {
+           var activityInfo = Activity.getActivityInfo();
+           if (activityInfo != null) {
+             positionInfo = activityInfo.currentLocation;
+             quality = activityInfo.currentLocationAccuracy;
+             timestamp = activityInfo.startTime.value();
+           }
+         }
+         if (positionInfo != null && quality > Position.QUALITY_NOT_AVAILABLE) {
+           if (phoneTimestamp == null || timestamp > phoneTimestamp) {
+             result.position = positionInfo;
+             System.println("Refresh location from device " + result.position.toGeoString(Toybox.Position.GEO_DEG));
+           } else {
+             result.position = new Toybox.Position.Location(
+                    {
+                        :latitude => phoneLattitude,
+                        :longitude => phoneLongitude,
+                        :format => :degrees
+                    });
+             System.println("Refresh location from phone " + result.position.toGeoString(Toybox.Position.GEO_DEG));
+           }
+         }
+       } else {
+         System.println("Refresh location was disabled");
+       }
+       return result;
+    }
+
     function onTemporalEvent() {
-      if (lattitude == null)  {
-        lattitude = App.getApp().getProperty("lattitude");
-      }
-
-      if (longitude == null) {
-         longitude = App.getApp().getProperty("longitude");
-      }
-
       currentWeather = null;
       forecastWeather = null;
       state = IDLE;
+      System.println("onTemporalEvent");
+      lattitude = App.getApp().getProperty("lattitude");
+      longitude = App.getApp().getProperty("longitude");
+      timestamp = App.getApp().getProperty("timestamp");
+      phoneLattitude = App.getApp().getProperty("phone.lattitude");
+      phoneLongitude = App.getApp().getProperty("phone.longitude");
+      phoneTimestamp = App.getApp().getProperty("phone.timestamp");
 
-      var usePosition = App.getApp().getProperty("UsePosition");
-      System.println("Use position is " + usePosition);
-
-      if (usePosition == null || usePosition == true) {
-        var positionInfo = Position.getInfo().position;
-        var quality = Position.getInfo().accuracy;
-        if (positionInfo == null) {
-          var activityInfo = Activity.getActivityInfo();
-          if (activityInfo != null) {
-            positionInfo = activityInfo.currentLocation;
-            quality = activityInfo.currentLocationAccuracy;
-          }
-        }
-        if (positionInfo != null && quality > Position.QUALITY_NOT_AVAILABLE) {
-          lattitude = positionInfo.toDegrees()[0];
-          longitude = positionInfo.toDegrees()[1];
-          System.println("Refresh location " + lattitude + ", " + longitude + " quality : " + quality);
-        }
-      } else {
-        lattitude = null;
-        longitude = null;
+      var positionInfo = getPositionInfo();
+      if (positionInfo.position != null) {
+        lattitude = positionInfo.position.toDegrees()[0];
+        longitude = positionInfo.position.toDegrees()[1];
       }
 
       cityCode = App.getApp().getProperty("WeatherLocation");
@@ -195,10 +259,10 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
         var windDirection = data.get("wind").get("deg");
 
         currentWeather = { "temperature" => temperature,
-                           "currentWeatherCode" => weatherCodes.get(weatherCode),
+                           "currentWeatherCode" => weatherCode,
                            "currentWindSpeed" => windSpeed,
                            "currentWindDirection" => windDirection,
-                           "timestamp" => timeStamp,
+                           "currentTimestamp" => timeStamp,
                            "currentLocation" => location };
     }
 
@@ -220,11 +284,11 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
     }
 
     function error(responseCode, data) {
-      var message = "no message";
+      var message = responseCode.toString();
       if (data != null) {
         message = data.get("message");
       }
-      System.println("Current weather response code " + responseCode + " message " + message);
+      System.println("Error response code " + responseCode + " data " + data);
       state = DONE;
       Background.exit({"error" => true,
                        "message" => message,
@@ -250,7 +314,6 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
             params, options,
             method(:forecastWeatherCallback));
     }
-
     function forecastWeatherCallback(responseCode, data) {
       // Do stuff with the response data here and send the data
       // payload back to the app that originated the background
@@ -269,9 +332,9 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
         var timeStamp = Time.now().value();
         var location = data.get("city").get("name");
 
-        for (var i = 0; i<4; i+=1) {
+        for (var i = 0; i<data.get("list").size(); i+=1) {
            temperature[i] = data.get("list")[i].get("main").get("temp");
-           conditions[i] = weatherCodes.get(data.get("list")[i].get("weather")[0].get("icon"));
+           conditions[i] = data.get("list")[i].get("weather")[0].get("icon");
            time[i] = data.get("list")[i].get("dt");
            windDirection[i] = data.get("list")[i].get("wind").get("deg");
            windSpeed[i] = data.get("list")[i].get("wind").get("speed");
@@ -284,7 +347,6 @@ class timelessWeatherDelegate extends System.ServiceDelegate {
                          "forecastTimestamp" => timeStamp,
                          "forecastLocation" => location
                          };
-
         state = DONE;
         loop();
       } else {

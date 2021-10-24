@@ -23,4 +23,6 @@
     <string id="MilesPerHour">mph</string>
     <string id="KilometersPerHour">km/h</string>
     <string id="DisplaySecondsTitle">Enable seconds display when supported by hardware</string>
+    <string id="Simple">Simple</string>
+    <string id="DisplayArrowTitle">Display style for analog arrows</string>
 </strings>

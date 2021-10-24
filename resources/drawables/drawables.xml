@@ -76,4 +76,10 @@
             <color>000000</color>
       </palette>
     </bitmap>
+    <bitmap id="unknown" filename="unknown.png">
+      <palette disableTransparency="false">
+            <color>FFFFFF</color>
+            <color>000000</color>
+      </palette>
+    </bitmap>
 </drawables>

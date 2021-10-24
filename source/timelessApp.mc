@@ -78,13 +78,13 @@ class timelessApp extends App.AppBase {
           var duration = Time.now().compare(lastTime);
 
           if (duration > periodProperty) {
-              System.println(dateString + " requestWeatherUpdate scheduled "+ duration);
+              //System.println(dateString + " requestWeatherUpdate scheduled "+ duration);
               Background.registerForTemporalEvent(Time.now());
           } else {
               System.println(dateString + " requestWeatherUpdate is skipped " + lastDateString + " " + periodProperty);
           }
         } else {
-          System.println(dateString + " requestWeatherUpdate scheduled now");
+          //System.println(dateString + " requestWeatherUpdate scheduled now");
           Background.registerForTemporalEvent(Time.now());
         }
       } else {
@@ -109,6 +109,10 @@ class timelessApp extends App.AppBase {
     }
 
     function synchronizeData(name, data) {
+        if (data == null) {
+          Sys.println("Synchronize " + name + " is null");
+          return;
+        }
         var value = data.get(name);
         Sys.println("Synchronize " + name + " = " + value );
         if (value != null) {
@@ -124,21 +128,29 @@ class timelessApp extends App.AppBase {
         var minutes = clockTime.min;
         var timeString = Lang.format(timeFormat, [hours, minutes.format("%02d")]);
 
+        System.println("onBackgroundData " + data);
+
         if (data instanceof Dictionary && (data.get("error") == null || data.get("error") == false)) {
-          synchronizeData("temperature", data.get("current"));
-          synchronizeData("weatherCode", data.get("current"));
           synchronizeData("forecastTemp", data.get("forecast"));
           synchronizeData("forecastWeather", data.get("forecast"));
           synchronizeData("forecastWindSpeed", data.get("forecast"));
           synchronizeData("forecastWindDirection", data.get("forecast"));
           synchronizeData("forecastTime", data.get("forecast"));
           synchronizeData("forecastTimestamp", data.get("forecast"));
-          synchronizeData("currentTimestap", data.get("current"));
+
+          synchronizeData("temperature", data.get("current"));
+          synchronizeData("currentWeatherCode", data.get("current"));
+          synchronizeData("currentTimestamp", data.get("current"));
           synchronizeData("currentLocation", data.get("current"));
           synchronizeData("currentWindSpeed", data.get("current"));
           synchronizeData("currentWindDirection", data.get("current"));
-          synchronizeData("lattitude", data.get("position"));
-          synchronizeData("longitude", data.get("position"));
+
+          synchronizeData("lattitude", data);
+          synchronizeData("longitude", data);
+          synchronizeData("timestamp", data);
+          synchronizeData("phone.lattitude", data);
+          synchronizeData("phone.longitude", data);
+          synchronizeData("phone.timestamp", data);
         } else {
           App.getApp().setProperty("currentLocation", data.get("message"));
         }
